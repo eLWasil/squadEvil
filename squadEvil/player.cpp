@@ -1,21 +1,44 @@
 #include "player.h"
 #include <math.h>
 #include <iostream>
+#include <string>
 
-player::player() : isJump(false), currentState(dir::STOP), currentDir(dir::FORWARD), texWidth(84), texHeight(64), hud(*this), defaultSpeed(0.6)
+#define TILESIZE 64
+
+player::player() : isJump(false), currentState(dir::STOP), currentDir(dir::FORWARD), texWidth(84), texHeight(64), hud(*this), defaultSpeed(0.6), gravitation(4)
 {
 	avatarTex.loadFromFile("data/Graphics/Avatars/tileset_mage.png", IntRect(0, 0, texWidth, texHeight));
 	avatarBackTex.loadFromFile("data/Graphics/Avatars/tileset_mage.png", IntRect(0, 64, texWidth, texHeight));
-	//avatarTex.loadFromFile("data/Avatars/new mage.png"); 
-	avatar.setTexture(avatarTex);
-	avatar.setPosition(0, 0);
 
+	String states[] = { "Attack", "Climb", "Dead", "Glide", "Idle", "Jump", "Jump_Attack", "Jump_Throw", "Run", "Slide", "Throw" };
+	for (int i = 0; i < 11; i++)
+	{
+		for (int j = 0; j < 9; j++)
+		{
+			String n = "data/Graphics/Avatars/girl/" + states[i];
+			n += "__00";
+			n += std::to_string(j);
+			n += ".png";
+
+
+			
+			girlTex[i][j].loadFromFile(n);
+			girlTex[i][j].setSmooth(true);
+		}
+	}
+	cState = states::Idle;
+
+	// AVATAR SPRITE 
+	avatar.setPosition(0, 0);
+	avatar.setTexture(girlTex[states::Idle][0]);
+	avatar.setOrigin(avatar.getGlobalBounds().width / 2, avatar.getGlobalBounds().height / 2 * 0);
+	avatar.setScale(Vector2f(0.14, 0.14));
 	jumpingCounter = 2;
 
 	
 
 	hitColorCounter = 0;
-	gravitation = 4;
+	//gravitation = 4;
 	currentSpeed = defaultSpeed;
 	gravityState = true;
 
@@ -68,44 +91,25 @@ void player::hudEffect(RenderWindow &window)
 
 }
 
-void player::drawCorners(RenderWindow &window)
-{
-	for (size_t i = 0; i < 4; i++)
-	{
-		CircleShape point;
-		point.setFillColor(Color(0, 0, 0));
-		point.setPosition(corners[i]);
-		point.setRadius(2);
-		window.draw(point);
 
-	}
-}
-
-void player::setCorners()
-{
-	Vector2f oldPosition = avatar.getPosition();
-	/*CORNERS*/ //84x 64y
-	corners[0].x = oldPosition.x + 4;
-	corners[0].y = oldPosition.y + 4;
-	corners[1].x = (oldPosition.x + texWidth) - 20;
-	corners[1].y = oldPosition.y + 4;
-	corners[2].x = (oldPosition.x + texWidth) - 20;
-	corners[2].y = (oldPosition.y + texHeight) - 6;
-	corners[3].x = oldPosition.x + 4;
-	corners[3].y = (oldPosition.y + texHeight) - 6;
-}
 
 void player::update()
 {
-	regen();
-
 	Vector2f oldPosition = avatar.getPosition();
 	setCorners();
+	regen();
 
-	if (oldPosition.y + gravitation >= (map[0].size() - 1) * 64)
+	//std::cout << avatar.getOrigin().x << ", " << avatar.getOrigin().y << std::endl;
+	//std::cout << avatar.getScale().x << std::endl;
+	//avatar.setOrigin(avatar.getGlobalBounds().width , avatar.getGlobalBounds().height );
+	//avatar.rotate(10);
+
+	
+	static int texCounter = 0;
+	if (avatarFramesTimer.getElapsedTime().asMilliseconds() > 200)
 	{
-		avatar.setPosition(0, 0);
-		gravitation = 4;
+		avatar.setTexture(girlTex[cState][++texCounter % 9]);
+		avatarFramesTimer.restart();
 	}
 
 	if (isJump && jumpingCounter > 0)
@@ -147,50 +151,65 @@ Sprite &player::getSprite()
 	return avatar;
 }
 
+void player::drawCorners(RenderWindow &window)
+{
+	for (size_t i = 0; i < 5; i++)
+	{
+		CircleShape point;
+		point.setFillColor(Color(255, 255, 255));
+		point.setPosition(corners[i]);
+		point.setRadius(2);
+		window.draw(point);
+
+	}
+}
+
+void player::setCorners()
+{
+	Vector2f pos = avatar.getPosition();
+	/* CORNERS FOR COLLISIONS */
+	/* Have to be a little bit 'in' texture */
+	int padding = 6;
+	float avatarHalfWidth = avatar.getGlobalBounds().width / 2;
+	corners[0].x = pos.x - avatarHalfWidth + padding; // LEFT TOP
+	corners[0].y = pos.y + padding;
+	corners[1].x = pos.x + avatarHalfWidth  - padding; // RIGHT TOP
+	corners[1].y = pos.y + padding;
+	corners[2].x = pos.x + avatarHalfWidth  - padding; // RIGHT BOT
+	corners[2].y = pos.y + avatar.getGlobalBounds().height - padding - 4;
+	corners[3].x = pos.x - avatarHalfWidth + padding;
+	corners[3].y = pos.y + avatar.getGlobalBounds().height - padding - 4; // LEFT BOT
+	
+	// Center
+	corners[4].x = pos.x;
+	corners[4].y = pos.y + avatar.getGlobalBounds().height / 2;
+}
+
 void player::gravity()
 {
 	static int k = 0;
-	Vector2i tileOnPlayer((avatar.getPosition().x + (corners[2].x - corners[3].x) / 2) / 64, (corners[2].y + gravitation + 6) / 64);
-	float dist = ((tileOnPlayer.y + 1) * 64) - corners[2].y;
-	//if (map[tileOnPlayer.x][tileOnPlayer.y + 1] == 0)
-	//printf("{player::gravity()} TileMap: %d(%d, %d), [%d]\n", map[tileOnPlayer.x][tileOnPlayer.y], tileOnPlayer.x, tileOnPlayer.y, (++k));
-		//std::cout << "" <<  << std::endl;
-	if(map[tileOnPlayer.x][tileOnPlayer.y] == 0)
+	int timer = gravitySpeedTimer.getElapsedTime().asMilliseconds();
+	int mod = gravitation + ((timer > 1000 ? 1000 : timer) / 50);
+	Vector2f newPosition = Vector2f(avatar.getPosition().x, avatar.getPosition().y + mod);
+	Vector2i tileOnNewPosition(corners[4].x / TILESIZE, (corners[2].y + mod) / TILESIZE);
+
+	if(map[tileOnNewPosition.x][tileOnNewPosition.y] == 0)
 	{
-		//std::cout << dist << std::endl;
-
-		//std::cout << "gravity = " << gravity << " / 2 * " << sec << "*" << sec << " = " << drop << std::endl;
-
-		avatar.setPosition(Vector2f(avatar.getPosition().x, avatar.getPosition().y + gravitation)); 
-		if (gravitation > 0)
+		if (newPosition.y > (map.size() - 5) * TILESIZE)
 		{
-			gravitation *= (gravitation > 32 ? 1 : 1.1);
-
+			avatar.setPosition(0, 0);
 		}
 		else
 		{
-			gravitation = 4;
+			avatar.setPosition(newPosition);
 		}
-
-		/*
-		setCorners();
-		Vector2i tileOnPlayer(((corners[2].x - corners[3].x) / 2) / 64,  ((corners[2].y - corners[1].y) / 2) / 64);
-		if (map[tileOnPlayer.x][tileOnPlayer.y + 1] != 0)
-		{
-			if (avatar.getPosition().y > tileOnPlayer.y * 64)
-			{
-				avatar.setPosition(avatar.getPosition().x, tileOnPlayer.y * 64);
-			}
-			gravitation = 4;
-		}
-		*/
-		//std::cout << gravity << std::endl;
 	}
 	else
 	{
-		avatar.setPosition(Vector2f(avatar.getPosition().x, (tileOnPlayer.y - 1) * 64));
+		gravitySpeedTimer.restart();
+		//avatar.setPosition(Vector2f(avatar.getPosition().x, avatar.getPosition().y - 8));
 		static int reflecCounter = 0;
-		gravitation = 4;
+		//gravitation = 4;
 
 
 			/*
@@ -213,54 +232,32 @@ void player::gravity()
 void player::moving()
 {
 	Vector2f position = avatar.getPosition();
-	/*
-	static float currentMove = 0;
-	int DIR = currentState - 1;
-
-	int expSpeed = DIR * 8;
-	const float changing = 0.6;
-	if (expSpeed < 0 && currentMove > expSpeed)
-	{
-		currentMove -= 2*changing;
-	}
-	else if (expSpeed > 0 && currentMove < expSpeed)
-	{
-		currentMove += 2*changing;
-	}
-	else if (expSpeed == 0)
-	{
-		if (currentMove < changing && currentMove > -changing)
-		{
-			currentMove = 0;
-		}
-		else
-		{
-			currentMove *= 0.8;
-		}
-	}
-	*/
-	static float currentMove = 0;
+	static float currentMoveSpeed = 0;
 	static float max_speed = 8;
 	int DIR = currentState - 1;
 	if (DIR < 0)
 	{
-		currentSpeed *= (currentMove < (max_speed * -1) ? 0 : 1.015);
-		currentMove -= currentSpeed;
+		currentSpeed *= (currentMoveSpeed < (max_speed * -1) ? 0 : 1.015);
+		currentMoveSpeed -= currentSpeed;
 
-		avatar.setTexture(avatarBackTex);
-		//std::cout << currentMove << std::endl;
+		if (avatar.getScale().x > 0)
+		{
+			avatar.setScale(avatar.getScale().x * -1, avatar.getScale().y);
+		}
 	}
 	else if (DIR > 0)
 	{
-		currentSpeed *= (currentMove > max_speed ? 0 : 1.015);
-		currentMove += currentSpeed;
+		currentSpeed *= (currentMoveSpeed > max_speed ? 0 : 1.015);
+		currentMoveSpeed += currentSpeed;
 		
-		avatar.setTexture(avatarTex);
-		//std::cout << currentMove << std::endl;
+		if (avatar.getScale().x < 0)
+		{
+			avatar.setScale(avatar.getScale().x * -1, avatar.getScale().y);
+		}
 	}
 	else
 	{
-		currentMove = 0;
+		currentMoveSpeed = 0;
 		currentSpeed = defaultSpeed;
 	}
 	if (currentSpeed > 8)
@@ -268,13 +265,15 @@ void player::moving()
 		currentSpeed = 8;
 	}
 
-	//std::cout << currentMove << std::endl;
-	prevSpeed = currentMove;
-	position.x += currentMove;
+	prevSpeed = currentMoveSpeed;
+	position.x += currentMoveSpeed;
+
+	Vector2f oldPos(avatar.getPosition());
+	avatar.setPosition(position.x, position.y);
 
 	/*
 	//COLLISIONS
-	if (currentMove > 0)
+	if (currentMoveSpeed > 0)
 	{
 		Vector2i tileParam(((position.x + texWidth - 16) / 64), (position.y + texHeight - 2) / 64);
 		//std::cout << tileParam.x << " " << tileParam.y << " ";
@@ -285,7 +284,7 @@ void player::moving()
 			position.x = (tileParam.x * 64) - texWidth;
 		}
 	}
-	else if(currentMove < 0)
+	else if(currentMoveSpeed < 0)
 	{
 		Vector2i tileParam(position.x / 64, (position.y + texHeight - 2) / 64);
 		int tileLeft = map[tileParam.x][tileParam.y];
@@ -296,10 +295,10 @@ void player::moving()
 	}
 	*/
 
-	Vector2f oldPos(avatar.getPosition());
-	avatar.setPosition(position);
+
+
 	//COLLISIONS 2
-	if (currentMove > 0)
+	if (currentMoveSpeed > 0)
 	{
 		Vector2i tileOnPlayer(corners[2].x / 64, corners[2].y / 64);
 		if (map[tileOnPlayer.x][tileOnPlayer.y] != 0)
@@ -307,7 +306,7 @@ void player::moving()
 			avatar.setPosition(oldPos);
 		}
 	}
-	else if (currentMove < 0)
+	else if (currentMoveSpeed < 0)
 	{
 		Vector2i tileOnPlayer(corners[3].x / 64, corners[3].y / 64);
 		if (avatar.getPosition().x < 0)
@@ -324,13 +323,14 @@ void player::moving()
 void player::jumping()
 {
 	static int	jumpHightCounter = 0;
+	int hightJump = 30;
 
 	if (jumpHightCounter < 5)
 	{
 		Vector2i tileOnPlayer((avatar.getPosition().x + (corners[2].x - corners[3].x) / 2) / 64, (corners[0].y - 24) / 64);
 		if (map[tileOnPlayer.x][tileOnPlayer.y] == 0)
 		{
-			avatar.setPosition(avatar.getPosition().x, avatar.getPosition().y - 24);
+			avatar.setPosition(avatar.getPosition().x, avatar.getPosition().y - hightJump);
 		}
 		else
 		{
@@ -339,7 +339,7 @@ void player::jumping()
 		
 
 		jumpHightCounter++;
-		gravitation = 4;
+		//gravitation = 3;
 	}
 	else
 	{

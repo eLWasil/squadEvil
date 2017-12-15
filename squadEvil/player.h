@@ -25,14 +25,21 @@ public:
 	void setMap(std::vector <std::vector < int>> &);
 
 	/* STATISTICS */
-	
-
 	virtual const int getGold() { return currentStats.gold; };
 	virtual const float getHp() { return currentStats.HP; };
 	virtual const float getMana() { return currentStats.MANA; };
 	virtual const float getExp() { return currentStats.EXP; };
 	virtual const int getMaxHp() { return currentStats.max_hp; };
 	virtual const int getMaxMana() { return currentStats.max_mana; };
+	
+	/* STATES */
+	enum states
+	{
+		Attack, Climb, Dead,
+		Glide, Idle, Jump,
+		Jump_Attack, Jump_Throw,
+		Run, Slide, Throw, COUNT
+	} cState;
 
 	/* SKILLS */
 	virtual skills *getSkill(int number) = 0;
@@ -52,7 +59,8 @@ public:
 	void death(Vector2f checkpoint) { currentStats.HP = currentStats.max_hp; setPosition(checkpoint); }
 	void hitEffect();
 	void hudEffect(RenderWindow &);
-
+	
+	/* MOVE */
 	enum dir
 	{
 		BACK = 0, STOP = 1, FORWARD = 2
@@ -60,6 +68,7 @@ public:
 	float currentSpeed;
 	const float defaultSpeed;
 	void move(dir);
+	/* CHECK PHYSIC PRIVATE METHODS */
 
 protected:
 	struct basicStats
@@ -75,7 +84,7 @@ protected:
 private:
 	HUD hud;
 	Sprite avatar;
-	Texture avatarTex;
+	Texture avatarTex, girlTex[11][9];
 	Texture avatarBackTex;
 	int texWidth, texHeight;
 	std::vector <std::vector <int>> map;
@@ -84,7 +93,7 @@ private:
 	
 	int skillBar[3];
 
-	Vector2f corners[4];
+	Vector2f corners[5]; // [4] - center
 	void setCorners();
 
 	/* Virtuals */
@@ -94,14 +103,15 @@ private:
 	/* Counters */
 	Clock hitColorTimer;
 	Clock ladderTime;
-	
+	Clock avatarFramesTimer;
+	Clock gravitySpeedTimer;
 
 	int hitColorCounter;
 
 	/* Physics */
 	void gravity();
 	bool gravityState;
-	float gravitation;
+	const float gravitation;
 
 	void moving();
 	float prevSpeed;

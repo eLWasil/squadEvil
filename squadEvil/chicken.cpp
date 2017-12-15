@@ -20,7 +20,7 @@ chicken::chicken(sf::Sprite obj, string type)
 	changeDir = false;
 	runAway = false;
 	targetChanging = false;
-	enemie.demage = 15;
+	stats.demage = 15;
 	enemie.range = 124;
 	degree = 0;
 
@@ -130,7 +130,8 @@ void chicken::eventP(player &Player)
 			}
 		}
 
-		if (abs(degree - enemie.angle) >= 5)
+		// Ta 2 oznacza o ile siê zmienia max k¹t ptaków w czasie namierzaniu celu
+		if (abs(degree - enemie.angle) >= 2)
 		{
 			angleIncrease = 2;
 
@@ -162,9 +163,9 @@ void chicken::eventP(player &Player)
 		if (hittimer.getElapsedTime().asMilliseconds() > 1000)
 		{
 			Player.hitEffect();
-			Player -= enemie.demage;
+			Player -= stats.demage;
 
-			cout << "chicken.hpp(160): " << this->position.x << ", " << this->position.y << " " << isDead << endl;
+			cout << "chicken.hpp(167): " << this->position.x << ", " << this->position.y << " " << isDead << endl;
 
 			enemie.speed = attackSpeed;
 			hittimer.restart();

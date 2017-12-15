@@ -20,6 +20,7 @@ public:
 protected:
 	struct enemieStats
 	{
+		float demage;
 		float HP = 100;
 	} stats;
 	
@@ -28,7 +29,6 @@ protected:
 		Vector2f dir;
 		float speed;
 		int angle = 0;
-		float demage;
 		float range;
 	} enemie;
 	bool attack;

@@ -31,6 +31,21 @@ void game::mainLoop()
 		Event handler;
 		if (window.pollEvent(handler))
 		{
+
+			if (handler.type == Event::Closed)
+			{
+				window.close();
+			}
+
+			if (handler.type == Event::LostFocus)
+			{
+				window.setFramerateLimit(0);
+			}
+			else if (handler.type == Event::GainedFocus)
+			{
+				window.setFramerateLimit(60);
+			}
+
 			if (handler.type == Event::KeyPressed)
 			{
 				if (handler.key.code == Keyboard::Escape)
@@ -69,6 +84,7 @@ void game::mainLoop()
 				}
 				else if (handler.key.code == Keyboard::Z)
 				{
+
 					skillsArray.push_back(p_1->getSkill(1));
 				}
 

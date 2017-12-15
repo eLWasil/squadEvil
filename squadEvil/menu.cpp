@@ -321,7 +321,8 @@ void menu::editorMenu(editor *map)
 		else if (choice == menuOptionsSize)
 		{
 			delete map;
-			map->mainLoop();
+			//map->mainLoop();
+			break;
 		}
 	}
 	
@@ -505,7 +506,7 @@ void menu::choiceClass()
 	} current;
 	current = ClassMarks::SWORD;
 
-	float currentPos = classes[current]->getPosition().x;
+	float currentPosX = classes[current]->getPosition().x;
 
 	while (1)
 	{
@@ -538,7 +539,7 @@ void menu::choiceClass()
 					{
 						Clock timer;
 						unsigned int time = 1000;
-						float move = (centerPos.x - classes[current]->getGlobalBounds().width / 2) - currentPos;
+						float move = (centerPos.x - classes[current]->getGlobalBounds().width / 2) - currentPosX;
 						float shift = move / time;
 						
 						float startPosY = classes[current]->getPosition().y;
@@ -546,7 +547,7 @@ void menu::choiceClass()
 						{
 							if (shift != 0)
 							{
-								classes[current]->setPosition(currentPos + (shift * timer.getElapsedTime().asMilliseconds()), classes[current]->getPosition().y);
+								classes[current]->setPosition(currentPosX + (shift * timer.getElapsedTime().asMilliseconds()), classes[current]->getPosition().y);
 							}
 							classes[(current + 1) % 3]->setPosition(classes[(current + 1) % 3]->getPosition().x, startPosY + (shiftOther(timer.getElapsedTime().asMilliseconds())));
 							classes[(current + 2) % 3]->setPosition(classes[(current + 2) % 3]->getPosition().x, startPosY + (shiftOther(timer.getElapsedTime().asMilliseconds())));
@@ -559,6 +560,10 @@ void menu::choiceClass()
 							mainWindow.display();
 						}
 						choosen = true;
+					}
+					else if (handler.key.code == Keyboard::Escape)
+					{
+						return;
 					}
 				}
 			}
@@ -599,7 +604,7 @@ void menu::choiceClass()
 			if (true)
 			{
 				Clock timer;
-				float dist = centerPos.x - currentPos;
+				float dist = centerPos.x - currentPosX;
 				unsigned int msec = 1600;
 				float step = dist / msec;
 				while (timer.getElapsedTime().asMilliseconds() < msec)
@@ -610,29 +615,27 @@ void menu::choiceClass()
 				Event handler;
 				if (mainWindow.pollEvent(handler))
 				{
-					if (handler.type == Event::TextEntered)
-					{
-						if (handler.key.code != 13)
-						{
-							if (handler.text.unicode == '\b')
-							{
-								name = name.substr(0, name.size() - 1);
-							}
-							else if (handler.text.unicode < 128)
-							{
-								name += static_cast<char>(handler.text.unicode);
-							}
-
-							nameBox.setCharacterSize(60);
-							nameBox.setColor(Color(255, 255, 255, 255));
-							nameBox.setString(name);
-						}
-					}
+					
 
 					if (handler.type == Event::KeyPressed)
 					{
-						if (handler.key.code == Keyboard::Escape)
+						if (handler.type == Event::TextEntered)
 						{
+							if (handler.key.code != 13)
+							{
+								if (handler.text.unicode == '\b')
+								{
+									name = name.substr(0, name.size() - 1);
+								}
+								else if (handler.text.unicode < 128)
+								{
+									name += static_cast<char>(handler.text.unicode);
+								}
+
+								nameBox.setCharacterSize(60);
+								nameBox.setColor(Color(255, 255, 255, 255));
+								nameBox.setString(name);
+							}
 						}
 					}
 				}
@@ -695,6 +698,8 @@ void menu::choiceClass()
 			} */
 			
 		}
+
+		
 
 		mainWindow.display();
 	}

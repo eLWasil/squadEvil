@@ -126,15 +126,15 @@ void editor::mainLoop()
 				}
 
 				
-				if (handler.key.code == Keyboard::Up)
+				if (handler.key.code == Keyboard::W)
 				{
 					screen.move(0, -64);
 				}
-				else if (handler.key.code == Keyboard::Down)
+				else if (handler.key.code == Keyboard::S)
 				{
 					screen.move(0, 64);
 				}
-				else if (handler.key.code == Keyboard::Left)
+				else if (handler.key.code == Keyboard::A)
 				{
 					if (currentAccessory->getPosition().x <= 0)
 					{
@@ -147,15 +147,15 @@ void editor::mainLoop()
 						}
 					}
 				}
-				else if (handler.key.code == Keyboard::Right)
+				else if (handler.key.code == Keyboard::D)
 				{
 					screen.move(64, 0);
 				}
 			}
 		}
-		Vector2f mousePos(Mouse::getPosition());
-		mousePos.x += screen.getCenter().x - (SCRN_WIDTH / 2);
-		mousePos.y += screen.getCenter().y - (SCRN_HEIGHT / 2);
+		Vector2f mousePos(Mouse::getPosition(edWindow));
+		//mousePos.x += screen.getCenter().x - (SCRN_WIDTH / 2);
+		//mousePos.y += screen.getCenter().y - (SCRN_HEIGHT / 2);
 		if (mouseDelta <= 18)
 		{
 			mousePos.x = int((mousePos.x - currentAccessory->getGlobalBounds().width / 2) / 64) * 64;

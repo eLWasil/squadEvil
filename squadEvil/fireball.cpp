@@ -20,8 +20,8 @@ void fireball::build()
 {
 	speed = 9;
 	dist = 0;
-	basics.cost = 5;
-	basics.demage = 20;
+	basics.cost = 4;
+	basics.demage = 40;
 	basics.duration = 0.5;
 	basics.level = 1; // Do poprawienia, przy wczytywaniu postaci.
 	basics.range = 64 * 10;
