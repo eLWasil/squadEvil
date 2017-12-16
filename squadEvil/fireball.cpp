@@ -18,6 +18,10 @@ fireball::fireball(Vector2f pos, int dir) : dirent(dir)
 
 void fireball::build()
 {
+	if (dirent < 0)
+	{
+		startingSprite.setScale(startingSprite.getScale().x * -1, startingSprite.getScale().y);
+	}
 	speed = 9;
 	dist = 0;
 	basics.cost = 4;
@@ -38,6 +42,8 @@ void fireball::build()
 	//currentSprite.setPosition(startingSprite.getPosition());
 	//currentSprite.setRadius(startingSprite.getRadius());
 	//printf("Fireball Position (x, y): %d, %d \n", startingSprite.getPosition().x, startingSprite.getPosition().y);
+
+	
 }
 
 fireball::~fireball()

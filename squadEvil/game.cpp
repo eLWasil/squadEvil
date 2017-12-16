@@ -258,53 +258,55 @@ void game::draw()
 
 void game::camera()
 {
-	const float increase = 0.05;
-	static float cameraSpeed = 0.4;
-	Vector2f minimal(p_1->getPosition());
-	Vector2f maximal(p_1->getPosition());
-	minimal.x += 256;
-	minimal.y -= 128;
-	maximal.x = minimal.x + 256;
-	maximal.y += 64;
+	//const float increase = 0.05;
+	const float maxCamSpeed = 14.6;
+	float camSpeed = 0.7 + ((double)cameraTmer.getElapsedTime().asMilliseconds() / 700);
+	camSpeed = camSpeed > maxCamSpeed ? maxCamSpeed : camSpeed;
+	
+	float safeLine = p_1->getPosition().x + (p_1->currentMoveDir-1 * 64);
 
+	float h = (safeLine - screen.getCenter().x) * (p_1->currentMoveDir - 1); // if > 0 move cam
 	Vector2f changePos(0, 0);
-	if (screen.getCenter().x < minimal.x)
+
+
+	if (h > 0)
 	{
-		changePos.x += cameraSpeed;
-	}
-	else if (screen.getCenter().x > maximal.x)
-	{
-		changePos.x -= cameraSpeed;
+		changePos.x += camSpeed;
+		changePos.x *= p_1->currentMoveDir-1;
 		if ((screen.getCenter().x - SCRN_WIDTH / 2) + changePos.x < 0)
 		{
 			changePos.x = 0;
 		}
 	}
-
-	if (screen.getCenter().y < minimal.y)
+	else if (screen.getCenter().x - (SCRN_WIDTH /2) > p_1->getPosition().x)
 	{
-		changePos.y += cameraSpeed;
+		changePos.x -= camSpeed;
 	}
-	else if (screen.getCenter().y > maximal.y)
-	{
-		changePos.y -= cameraSpeed;
-	}
+	
+	float v = p_1->getPosition().y - screen.getCenter().y; // przesuniêcie osi Y
 
-	if (changePos.x != 0 || changePos.y != 0)
+	if (v > 8)
 	{
-		cameraSpeed += increase;
+		changePos.y += camSpeed;
+	}
+	else if (v < -8)
+	{
+		changePos.y -= camSpeed;
 	}
 	else
 	{
-		if (cameraSpeed > 0.6)
-		{
-			cameraSpeed -= (increase * 2);
-		}
+		changePos.y = v;
 	}
 
+
+	if (changePos.x + changePos.y == 0)
+	{
+		cameraTmer.restart();
+	}
+
+	//cout << changePos.x << endl;
 	screen.move(changePos);
 }
-
 
 void game::endOfLevel()
 {

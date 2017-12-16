@@ -27,7 +27,9 @@ private:
 	void camera();
 	player *p_1;
 
-	//HUD hud;
+	// Timers
+	Clock cameraTmer;
+	
 	void endOfLevel();
 
 	vector <skills *> skillsArray;

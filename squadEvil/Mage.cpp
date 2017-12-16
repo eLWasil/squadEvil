@@ -15,10 +15,10 @@ Mage::~Mage()
 skills* Mage::getSkill(const int number = 0)
 {
 	Vector2f pos = this->getCenter();
-	skills* temp = (new fireball(pos, this->currentDir - 1));
+	skills* temp = (new fireball(pos, this->currentMoveDir - 1));
 	if (number < 3)
 	{
-		temp = (new fireball(pos, this->currentDir - 1));
+		temp = (new fireball(pos, this->currentMoveDir - 1));
 		int cost = temp->getCost();
 		if (cost > getMANA())
 		{

@@ -19,7 +19,7 @@ public:
 	Vector2f getPosition();
 	Vector2f getCenter();
 	/* SETTERS */
-	void setPosition(float x, float y) { avatar.setPosition(x, y); };
+	void setPosition(float x, float y) { avatar.setPosition((x < 0 ? 0 : x), (y < 0 ? 0 : y)); };
 	void setPosition(Vector2f pos) { avatar.setPosition(pos); };
 	void drawCorners(RenderWindow &);
 	void setMap(std::vector <std::vector < int>> &);
@@ -39,7 +39,7 @@ public:
 		Glide, Idle, Jump,
 		Jump_Attack, Jump_Throw,
 		Run, Slide, Throw, COUNT
-	} cState;
+	} cTextureState;
 
 	/* SKILLS */
 	virtual skills *getSkill(int number) = 0;
@@ -64,7 +64,7 @@ public:
 	enum dir
 	{
 		BACK = 0, STOP = 1, FORWARD = 2
-	} currentState, currentDir;
+	} currentState, currentMoveDir;
 	float currentSpeed;
 	const float defaultSpeed;
 	void move(dir);
@@ -88,13 +88,13 @@ private:
 	Texture avatarBackTex;
 	int texWidth, texHeight;
 	std::vector <std::vector <int>> map;
-
-	
-	
 	int skillBar[3];
-
 	Vector2f corners[5]; // [4] - center
+	
+	/* Methods */
 	void setCorners();
+	void checkTexState();
+
 
 	/* Virtuals */
 	virtual void regen() = 0;

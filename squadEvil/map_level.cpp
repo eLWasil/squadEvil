@@ -369,3 +369,22 @@ sf::Vector2i map_level::mapSize()
 {
 	return sf::Vector2i(width, height);
 }
+
+accessories* map_level::getNearestAccessory(Vector2f mousePos)
+{
+	accessories* temp = 0;
+	float range = 32;
+	for (int i = 0; i < others.size(); i++)
+	{
+		Vector2f pos = others[i]->sprite.getPosition();
+		if (abs(mousePos.x - pos.x) < range)
+		{
+			if (abs(mousePos.y - pos.y) < range)
+			{
+				temp = others[i];
+				break;
+			}
+		}
+	}
+	return temp;
+}

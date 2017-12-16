@@ -14,6 +14,8 @@ public:
 	map_level(string fileName);
 	~map_level();
 
+	accessories* getNearestAccessory(Vector2f mousePos);
+
 	enum tileTypes {
 		NOTHING,
 		LONG_LEFT_CORNER, GROUND, LONG_RIGHT_CORNER, 

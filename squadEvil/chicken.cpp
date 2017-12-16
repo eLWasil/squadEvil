@@ -165,7 +165,7 @@ void chicken::eventP(player &Player)
 			Player.hitEffect();
 			Player -= stats.demage;
 
-			cout << "chicken.hpp(167): " << this->position.x << ", " << this->position.y << " " << isDead << endl;
+			//cout << "chicken.hpp(167): " << this->position.x << ", " << this->position.y << " " << isDead << endl;
 
 			enemie.speed = attackSpeed;
 			hittimer.restart();

@@ -8,7 +8,7 @@ HUD::HUD(player &Player) : Player(Player)
 	font.loadFromFile("data/Fonts/Pacha.otf");
 	Gold_1.setFont(font);
 	Gold_1.setCharacterSize(24);
-	Gold_1.setColor(Color(170, 160, 57));
+	Gold_1.setColor(Color(0, 0, 0));
 
 	statistic[0].setFillColor(Color(82, 0, 10));
 	statistic[1].setFillColor(Color(22, 39, 86));
@@ -35,7 +35,7 @@ void HUD::update()
 	Gold_1.setString(gold_1);
 	//Gold_1.setPosition(screen.getCenter().x - screen.getSize().x / 2, screen.getCenter().y - screen.getSize().y / 2);
 	
-	Gold_1.setPosition(posP.x, posP.y - 60);
+	Gold_1.setPosition(posP.x, posP.y - 66);
 	
 	int statisticMax[] = { Player.getMaxHp(), Player.getMaxMana(), 100 };
 	float statisticCurrent[] = { Player.getHp(), Player.getMana() - 20, 65 };

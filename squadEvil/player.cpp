@@ -5,7 +5,7 @@
 
 #define TILESIZE 64
 
-player::player() : isJump(false), currentState(dir::STOP), currentDir(dir::FORWARD), texWidth(84), texHeight(64), hud(*this), defaultSpeed(0.6), gravitation(4)
+player::player() : isJump(false), currentState(dir::STOP), currentMoveDir(dir::FORWARD), texWidth(84), texHeight(64), hud(*this), defaultSpeed(0.6), gravitation(2)
 {
 	avatarTex.loadFromFile("data/Graphics/Avatars/tileset_mage.png", IntRect(0, 0, texWidth, texHeight));
 	avatarBackTex.loadFromFile("data/Graphics/Avatars/tileset_mage.png", IntRect(0, 64, texWidth, texHeight));
@@ -26,11 +26,11 @@ player::player() : isJump(false), currentState(dir::STOP), currentDir(dir::FORWA
 			girlTex[i][j].setSmooth(true);
 		}
 	}
-	cState = states::Idle;
+	cTextureState = states::Run;
 
 	// AVATAR SPRITE 
-	avatar.setPosition(0, 0);
-	avatar.setTexture(girlTex[states::Idle][0]);
+	avatar.setPosition(20, 0);
+	avatar.setTexture(girlTex[cTextureState][0]);
 	avatar.setOrigin(avatar.getGlobalBounds().width / 2, avatar.getGlobalBounds().height / 2 * 0);
 	avatar.setScale(Vector2f(0.14, 0.14));
 	jumpingCounter = 2;
@@ -85,17 +85,46 @@ void player::hitEffect()
 void player::hudEffect(RenderWindow &window)
 {
 	hud.update();
+	window.draw(hud.getGold());
 	window.draw(hud.statistic[0]);
 	window.draw(hud.statistic[1]);
 	window.draw(hud.statistic[2]);
 
 }
 
+void player::checkTexState()
+{
+	static int texCounter = 0;
+	if (avatarFramesTimer.getElapsedTime().asMilliseconds() > (1000 / 60))
+	{
+		avatar.setTexture(girlTex[cTextureState][++texCounter % 9]);
+		avatarFramesTimer.restart();
+	}
 
+	if (isJump && currentState-1 == 0)
+	{
+		cTextureState = states::Jump;
+	}
+	else if (isJump && (currentState - 1) != 0)
+	{
+		cTextureState = states::Jump_Throw;
+	}
+	else if ((currentState - 1) != 0)
+	{
+		//std::cout << currentState - 1 << std::endl;
+		cTextureState = states::Run;
+	}
+	else
+	{
+		cTextureState = states::Idle;
+	}
+}
 
 void player::update()
 {
 	Vector2f oldPosition = avatar.getPosition();
+
+	checkTexState();
 	setCorners();
 	regen();
 
@@ -105,12 +134,7 @@ void player::update()
 	//avatar.rotate(10);
 
 	
-	static int texCounter = 0;
-	if (avatarFramesTimer.getElapsedTime().asMilliseconds() > 200)
-	{
-		avatar.setTexture(girlTex[cState][++texCounter % 9]);
-		avatarFramesTimer.restart();
-	}
+	
 
 	if (isJump && jumpingCounter > 0)
 	{
@@ -206,24 +230,10 @@ void player::gravity()
 	}
 	else
 	{
-		gravitySpeedTimer.restart();
-		//avatar.setPosition(Vector2f(avatar.getPosition().x, avatar.getPosition().y - 8));
-		static int reflecCounter = 0;
-		//gravitation = 4;
+		gravitySpeedTimer.restart(); 
+		isJump = false;
+		
 
-
-			/*
-			if (reflecCounter == 0)
-			{
-				//reflecCounter = 0;
-			}
-			else
-			{
-				timeZero.restart();
-				avatar.setPosition(avatar.getPosition().x, avatar.getPosition().y - ((2 - reflecCounter) * 16));
-				reflecCounter++;
-			}
-			*/
 		jumpingCounter = 2;
 	}
 }
@@ -235,6 +245,8 @@ void player::moving()
 	static float currentMoveSpeed = 0;
 	static float max_speed = 8;
 	int DIR = currentState - 1;
+	
+
 	if (DIR < 0)
 	{
 		currentSpeed *= (currentMoveSpeed < (max_speed * -1) ? 0 : 1.015);
@@ -323,9 +335,9 @@ void player::moving()
 void player::jumping()
 {
 	static int	jumpHightCounter = 0;
-	int hightJump = 30;
+	int hightJump = 32;
 
-	if (jumpHightCounter < 5)
+	if (jumpHightCounter < 3)
 	{
 		Vector2i tileOnPlayer((avatar.getPosition().x + (corners[2].x - corners[3].x) / 2) / 64, (corners[0].y - 24) / 64);
 		if (map[tileOnPlayer.x][tileOnPlayer.y] == 0)
@@ -344,7 +356,7 @@ void player::jumping()
 	else
 	{
 		jumpHightCounter = 0;
-		isJump = false;
+		//isJump = false;
 		jumpingCounter--;
 	}
 }
@@ -354,6 +366,7 @@ void player::jump()
 	if (jumpingCounter > 0)
 	{
 		isJump = true;
+		cTextureState = states::Jump;
 	}
 }
 
@@ -365,7 +378,7 @@ void player::move(dir mode)
 	}
 	if (mode != dir::STOP)
 	{
-		currentDir = mode;
+		currentMoveDir = mode;
 	}
 }
 
@@ -377,6 +390,7 @@ int player::sigLadder()
 	{
 		stopGravity();
 		return 1;
+		//std::cout
 	}
 	else
 	{
