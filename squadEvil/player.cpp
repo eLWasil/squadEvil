@@ -29,7 +29,8 @@ player::player() : isJump(false), currentState(dir::STOP), currentMoveDir(dir::F
 	cTextureState = states::Run;
 
 	// AVATAR SPRITE 
-	avatar.setPosition(20, 0);
+	controlPoint = Vector2f(20, 0);
+	avatar.setPosition(controlPoint);
 	avatar.setTexture(girlTex[cTextureState][0]);
 	avatar.setOrigin(avatar.getGlobalBounds().width / 2, avatar.getGlobalBounds().height / 2 * 0);
 	avatar.setScale(Vector2f(0.14, 0.14));
@@ -221,7 +222,7 @@ void player::gravity()
 	{
 		if (newPosition.y > (map.size() - 5) * TILESIZE)
 		{
-			avatar.setPosition(0, 0);
+			avatar.setPosition(controlPoint);
 		}
 		else
 		{
@@ -339,7 +340,9 @@ void player::jumping()
 
 	if (jumpHightCounter < 3)
 	{
-		Vector2i tileOnPlayer((avatar.getPosition().x + (corners[2].x - corners[3].x) / 2) / 64, (corners[0].y - 24) / 64);
+		Vector2i tileOnPlayer(avatar.getPosition().x / 64, corners[3].y / 64);
+		//std::cout << "player.cpp(344): " << tileOnPlayer.x << " " << tileOnPlayer.y << std::endl;
+		
 		if (map[tileOnPlayer.x][tileOnPlayer.y] == 0)
 		{
 			avatar.setPosition(avatar.getPosition().x, avatar.getPosition().y - hightJump);

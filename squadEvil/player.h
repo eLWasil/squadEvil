@@ -90,7 +90,9 @@ private:
 	std::vector <std::vector <int>> map;
 	int skillBar[3];
 	Vector2f corners[5]; // [4] - center
-	
+	Vector2f controlPoint;
+
+
 	/* Methods */
 	void setCorners();
 	void checkTexState();

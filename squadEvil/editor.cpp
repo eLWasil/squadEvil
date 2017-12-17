@@ -160,8 +160,8 @@ void editor::mainLoop()
 
 		if (mouseDelta <= 18)
 		{
-			mousePos.x = int((mousePos.x - currentAccessory->getGlobalBounds().width / 2) / 64) * 64;
-			mousePos.y = int((mousePos.y - currentAccessory->getGlobalBounds().height / 2) / 64) * 64;
+			mousePos.x = int((mousePos.x + screen.getCenter().x - (SCRN_WIDTH / 2)) / 64) * 64;
+			mousePos.y = int((mousePos.y + screen.getCenter().y - (SCRN_HEIGHT / 2)) / 64) * 64;
 		}
 		else if (mouseDelta == 19)
 		{

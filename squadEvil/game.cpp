@@ -258,6 +258,64 @@ void game::draw()
 
 void game::camera()
 {
+	const float maxCamSpeed = 14.6;
+	float camSpeed = 10 - ((double)cameraTmer.getElapsedTime().asMilliseconds() / 400);
+	camSpeed = camSpeed > maxCamSpeed ? maxCamSpeed : camSpeed;
+	camSpeed = camSpeed < 2 ? 2 : camSpeed;
+
+	float safeLine = screen.getCenter().x;
+	float minLine = screen.getCenter().x - SCRN_WIDTH / 2;
+
+	Vector2f moveCam(0, 0);
+	if (p_1->currentMoveDir - 1 > 0)
+	{
+		safeLine = (screen.getCenter().x - (SCRN_WIDTH / 2)) + SCRN_WIDTH / 3;
+		if (minLine < p_1->getPosition().x && p_1->getPosition().x > safeLine)
+		{
+			moveCam.x += camSpeed;
+		}
+		else if (minLine > p_1->getPosition().x)
+		{
+			moveCam.x -= camSpeed;
+		}
+	}
+	else if(p_1->currentMoveDir - 1 < 0)
+	{
+		safeLine = (screen.getCenter().x + (SCRN_WIDTH / 2)) - SCRN_WIDTH / 3;
+		if (p_1->getPosition().x < safeLine && minLine > 0)
+		{
+			moveCam.x -= camSpeed;
+		}
+	}
+
+	float v = p_1->getPosition().y - screen.getCenter().y; // przesuniêcie osi Y
+	if (v > 8)
+	{
+		moveCam.y += camSpeed / 2;
+	}
+	else if (v < -8)
+	{
+		moveCam.y -= camSpeed / 2;
+	}
+	else
+	{
+		moveCam.y = v;
+	}
+
+	if (moveCam.x + moveCam.y == 0)
+	{
+		cameraTmer.restart();
+	}
+
+	screen.move(moveCam);
+}
+
+
+
+
+
+void game::camera2()
+{
 	//const float increase = 0.05;
 	const float maxCamSpeed = 14.6;
 	float camSpeed = 0.7 + ((double)cameraTmer.getElapsedTime().asMilliseconds() / 700);
@@ -266,6 +324,7 @@ void game::camera()
 	float safeLine = p_1->getPosition().x + (p_1->currentMoveDir-1 * 64);
 
 	float h = (safeLine - screen.getCenter().x) * (p_1->currentMoveDir - 1); // if > 0 move cam
+
 	Vector2f changePos(0, 0);
 
 
@@ -284,7 +343,6 @@ void game::camera()
 	}
 	
 	float v = p_1->getPosition().y - screen.getCenter().y; // przesuniêcie osi Y
-
 	if (v > 8)
 	{
 		changePos.y += camSpeed;
