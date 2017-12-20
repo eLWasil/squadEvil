@@ -3,6 +3,7 @@
 #include "Mage.h"
 #include "options.h"
 #include "FileMenager.h"
+#include "physics.h"
 using namespace sf;
 
 class game
@@ -19,6 +20,7 @@ private:
 	RenderWindow &window;
 	View screen;
 	FileMenager f_manager;
+	physics Physics;
 
 	int SCRN_WIDTH,
 		SCRN_HEIGHT;

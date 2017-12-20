@@ -21,7 +21,6 @@ public:
 	/* SETTERS */
 	void setPosition(float x, float y) { avatar.setPosition((x < 0 ? 0 : x), (y < 0 ? 0 : y)); };
 	void setPosition(Vector2f pos) { avatar.setPosition(pos); };
-	void drawCorners(RenderWindow &);
 	void setMap(std::vector <std::vector < int>> &);
 
 	/* STATISTICS */
@@ -32,7 +31,7 @@ public:
 	virtual const int getMaxHp() { return currentStats.max_hp; };
 	virtual const int getMaxMana() { return currentStats.max_mana; };
 	
-	/* STATES */
+	/* TEXTURE STATES */
 	enum states
 	{
 		Attack, Climb, Dead,
@@ -49,11 +48,9 @@ public:
 	int operator-=(int k) { currentStats.HP = (currentStats.HP - k < 0 ? 0 : currentStats.HP - k); return currentStats.HP; }
 
 	/* SIGNALS */
-	int sigLadder();
-	void sigLadderReset() { ladderTime.restart(); };
-	void stopGravity() { gravityState = false; };
-	void startGravity() { gravityState = true; };
-	void jump();
+	//int sigLadder();
+	//void sigLadderReset() { ladderTime.restart(); };
+	//void jump();
 	const bool isJumping() { return isJump; };
 
 	void death(Vector2f checkpoint) { currentStats.HP = currentStats.max_hp; setPosition(checkpoint); }
@@ -64,11 +61,17 @@ public:
 	enum dir
 	{
 		BACK = 0, STOP = 1, FORWARD = 2
-	} currentState, currentMoveDir;
-	float currentSpeed;
-	const float defaultSpeed;
-	void move(dir);
-	/* CHECK PHYSIC PRIVATE METHODS */
+	} currentDirState, currentMoveDir;
+
+	/* Points for physics */
+	enum class physicsPoints
+	{
+		LEFT_TOP, RIGHT_TOP, 
+		RIGHT_BOT, LEFT_BOT,
+		CENTER, COUNT
+	};
+	Vector2f getCorner(physicsPoints a) { return corners[(int)a]; };
+	void drawCorners(RenderWindow &);
 
 protected:
 	struct basicStats
@@ -84,13 +87,12 @@ protected:
 private:
 	HUD hud;
 	Sprite avatar;
-	Texture avatarTex, girlTex[11][9];
-	Texture avatarBackTex;
-	int texWidth, texHeight;
-	std::vector <std::vector <int>> map;
+	Texture girlTex[11][9];
+	//int texWidth, texHeight;
+	//std::vector <std::vector <int>> map;
 	int skillBar[3];
 	Vector2f corners[5]; // [4] - center
-	Vector2f controlPoint;
+	Vector2f lastControlPoint;
 
 
 	/* Methods */
@@ -104,21 +106,13 @@ private:
 
 	/* Counters */
 	Clock hitColorTimer;
-	Clock ladderTime;
 	Clock avatarFramesTimer;
-	Clock gravitySpeedTimer;
 
 	int hitColorCounter;
 
 	/* Physics */
-	void gravity();
-	bool gravityState;
-	const float gravitation;
 
-	void moving();
-	float prevSpeed;
-
-	void jumping();
+	//void jumping();
 	bool isJump;
 	int jumpingCounter;
 	/************/

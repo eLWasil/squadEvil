@@ -14,7 +14,7 @@ public:
 	map_level(string fileName);
 	~map_level();
 
-	accessories* getNearestAccessory(Vector2f mousePos);
+	vector <int > operator[](int k) { return tileMap[k]; };
 
 	enum tileTypes {
 		NOTHING,
@@ -30,9 +30,11 @@ public:
 		BUSH_1, BUSH_2, BUSH_3, BUSH_4
 	};
 
+	vector <vector <int>> tileMap, tileMapHeaven, *whichMap; //should be private, will be fixed
+
+	float getMapSizeX() { return tileMap.size() * 64; };
 	vector <accessories*> others;
 	vector <sf::Sprite> tileSprites;
-	vector <vector <int>> tileMap, tileMapHeaven, *whichMap;
 	sf::Texture TilesTex[19];
 	sf::Texture accessoryTex[14];
 	sf::Sprite background;
@@ -43,6 +45,7 @@ public:
 	int getTileType(sf::Vector2f);
 	void setHeight(int height);
 	void updateMap();
+	accessories* getNearestAccessory(Vector2f mousePos);
 
 	string name, type;
 	sf::Vector2i mapSize();

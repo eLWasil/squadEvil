@@ -12,6 +12,7 @@ game::game(RenderWindow &window, options *sett) : window(window), settings(*sett
 	screen.setSize(SCRN_WIDTH, SCRN_HEIGHT);
 	screen.setCenter(SCRN_WIDTH / 2, SCRN_HEIGHT / 2);
 
+	Physics.setLevel(level);
 	p_1->setMap(level->tileMap);
 	
 	mainLoop();
@@ -28,6 +29,9 @@ void game::mainLoop()
 {
 	while (true)
 	{
+		Physics.gravity(p_1);
+		Physics.tileCollisions(p_1);
+
 		Event handler;
 		if (window.pollEvent(handler))
 		{
@@ -35,6 +39,7 @@ void game::mainLoop()
 			if (handler.type == Event::Closed)
 			{
 				window.close();
+				break;
 			}
 
 			if (handler.type == Event::LostFocus)
@@ -58,16 +63,21 @@ void game::mainLoop()
 				}
 				else if (handler.key.code == Keyboard::Right)
 				{
-					p_1->move(player::dir::FORWARD);
+					//p_1->move(player::dir::FORWARD);
+					//Physics.tileCollisions(p_1, player::dir::FORWARD);
+					p_1->currentDirState = player::dir::FORWARD;
 				}
 				else if (handler.key.code == Keyboard::Left)
 				{
-					p_1->move(player::dir::BACK);
+					p_1->currentDirState = player::dir::BACK;
+					//Physics.tileCollisions(p_1, player::dir::BACK);
+					//p_1->move(player::dir::BACK);
 				}
 				else if (handler.key.code == Keyboard::Space)
 				{
-					int sL = p_1->sigLadder();
+					//int sL = p_1->sigLadder();
 					//cout << "\nSpace: signal " << sL;
+					int sL = 0;
 					if (sL > 0)
 					{
 						p_1->setPosition(p_1->getPosition().x, p_1->getPosition().y - 32);
@@ -79,7 +89,7 @@ void game::mainLoop()
 					}
 					else
 					{
-						p_1->jump();
+						//p_1->jump();
 					}
 				}
 				else if (handler.key.code == Keyboard::Z)
@@ -93,15 +103,18 @@ void game::mainLoop()
 			{
 				if (handler.key.code == Keyboard::Right)
 				{
-					p_1->move(player::dir::STOP);
+					p_1->currentDirState = player::dir::STOP;
+					//Physics.tileCollisions(p_1, player::dir::STOP);
 				}
 				else if (handler.key.code == Keyboard::Left)
 				{
-					p_1->move(player::dir::STOP);
+					p_1->currentDirState = player::dir::STOP;
+					//Physics.tileCollisions(p_1, player::dir::STOP);
 				}
 			}
 
 		}
+
 		window.clear();
 		camera();
 		window.setView(screen);
@@ -126,9 +139,9 @@ void game::draw()
 	/* MAP */
 	for (int i = 0; i < level->tileSprites.size(); i++)
 	{
-		if (level->tileSprites[i].getPosition().x > screenPosition.x - 64)
+		if (level->tileSprites[i].getPosition().x > screenPosition.x - 128)
 		{
-			if (level->tileSprites[i].getPosition().x < screenPosition.x + SCRN_WIDTH + 64)
+			if (level->tileSprites[i].getPosition().x < screenPosition.x + SCRN_WIDTH + 128)
 			{
 				window.draw(level->tileSprites[i]);
 			}
@@ -140,7 +153,7 @@ void game::draw()
 	vector<enemies* > enemieObjects;
 	for (int i = 0; i < level->others.size(); i++)
 	{
-		if (level->others[i]->sprite.getPosition().x >(screen.getCenter().x - (SCRN_WIDTH / 2)) - 64)
+		if (level->others[i]->sprite.getPosition().x > (screen.getCenter().x - (SCRN_WIDTH / 2)) - 128)
 		{
 			if (level->others[i]->sprite.getPosition().x < (screen.getCenter().x + (SCRN_WIDTH / 2)) + 256)
 			{
