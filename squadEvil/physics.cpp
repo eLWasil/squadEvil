@@ -1,4 +1,5 @@
 #include "physics.h"
+#include <math.h>
 #define TILESIZE 64
 
 
@@ -22,31 +23,64 @@ void physics::setLevel(map_level *map)
 
 void physics::gravity(player *p)
 {
-	static int k = 0;
-	int timer = gravitySpeedTimer.getElapsedTime().asMilliseconds();
-	int mod = gravitationPower + ((timer > 1000 ? 1000 : timer) / 50);
-	Vector2f newPosition = Vector2f(p->getPosition().x, p->getPosition().y + mod);
-	Vector2i tileOnNewPosition(p->getCorner(player::physicsPoints::CENTER).x / TILESIZE, (p->getCorner(player::physicsPoints::RIGHT_BOT).y + mod) / TILESIZE);
-
-	if (map->tileMap[tileOnNewPosition.x][tileOnNewPosition.y] == 0)
+	if (p->getJumpingVariable())
 	{
-		if (newPosition.y > (map->tileMap.size() - 5) * TILESIZE)
+		// -(x^2) +16 // -4 ... 4
+		const int timeOfJumping = 600; // as Milisecons
+		
+		if (jumpTimer.getElapsedTime().asMilliseconds() < timeOfJumping)
 		{
-			p->setPosition(controlPoint);
+			const int stepCount = 8;
+			float step = timeOfJumping / stepCount;
+			float x = (jumpTimer.getElapsedTime().asMilliseconds() / step) - (stepCount / 2);
+			float y = (-(pow(x, 2.)) + 16)*8;
+
+			Vector2f newPos = Vector2f(p->getPosition().x, p->startingPositionY - y);
+
+			if (x > 0) // it mean player is going down
+			{
+				p->endJump();
+			}
+			else
+			{
+				p->setPosition(newPos);
+			}
 		}
 		else
 		{
-			p->setPosition(newPosition);
+			p->endJump();
 		}
 	}
 	else
 	{
-		gravitySpeedTimer.restart();
-		//isJump = false;
+		jumpTimer.restart();
+
+		int timer = gravitySpeedTimer.getElapsedTime().asMilliseconds();
+		int mod = gravitationPower + ((timer > 1000 ? 1000 : timer) / 50);
+		Vector2f newPosition = Vector2f(p->getPosition().x, p->getPosition().y + mod);
+		Vector2i tileOnNewPosition(p->getCorner(player::physicsPoints::CENTER).x / TILESIZE, (p->getCorner(player::physicsPoints::RIGHT_BOT).y + mod) / TILESIZE);
+
+		if (map->tileMap[tileOnNewPosition.x][tileOnNewPosition.y] == 0)
+		{
+			if (newPosition.y > (map->tileMap.size() - 5) * TILESIZE)
+			{
+				p->setPosition(controlPoint);
+			}
+			else
+			{
+				p->setPosition(newPosition);
+			}
+		}
+		else
+		{
+			gravitySpeedTimer.restart();
+			//isJump = false;
 
 
-		//jumpingCounter = 2;
+			//jumpingCounter = 2;
+		}
 	}
+	
 }
 
 void physics::tileCollisions(player *p)
@@ -99,4 +133,11 @@ void physics::tileCollisions(player *p)
 			p->setPosition(newPosition);
 		}
 	}
+}
+
+void physics::jump(player *p)
+{
+	//Jumping moved to gravity
+
+
 }

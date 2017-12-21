@@ -89,7 +89,10 @@ void game::mainLoop()
 					}
 					else
 					{
-						//p_1->jump();
+						if (!p_1->getJumpingVariable())
+						{
+							p_1->startJump();
+						}
 					}
 				}
 				else if (handler.key.code == Keyboard::Z)
@@ -104,12 +107,10 @@ void game::mainLoop()
 				if (handler.key.code == Keyboard::Right)
 				{
 					p_1->currentDirState = player::dir::STOP;
-					//Physics.tileCollisions(p_1, player::dir::STOP);
 				}
 				else if (handler.key.code == Keyboard::Left)
 				{
 					p_1->currentDirState = player::dir::STOP;
-					//Physics.tileCollisions(p_1, player::dir::STOP);
 				}
 			}
 
@@ -269,21 +270,21 @@ void game::draw()
 	p_1->hudEffect(window);
 }
 
-void game::camera()
+void game::camera2()
 {
 	const float maxCamSpeed = 14.6;
 	float camSpeed = 10 - ((double)cameraTmer.getElapsedTime().asMilliseconds() / 400);
 	camSpeed = camSpeed > maxCamSpeed ? maxCamSpeed : camSpeed;
 	camSpeed = camSpeed < 2 ? 2 : camSpeed;
 
-	float safeLine = screen.getCenter().x;
+	float moveLine = screen.getCenter().x;
 	float minLine = screen.getCenter().x - SCRN_WIDTH / 2;
 
 	Vector2f moveCam(0, 0);
 	if (p_1->currentMoveDir - 1 > 0)
 	{
-		safeLine = (screen.getCenter().x - (SCRN_WIDTH / 2)) + SCRN_WIDTH / 3;
-		if (minLine < p_1->getPosition().x && p_1->getPosition().x > safeLine)
+		moveLine = (screen.getCenter().x - (SCRN_WIDTH / 2)) + SCRN_WIDTH / 3;
+		if (minLine < p_1->getPosition().x && p_1->getPosition().x > moveLine)
 		{
 			moveCam.x += camSpeed;
 		}
@@ -294,8 +295,8 @@ void game::camera()
 	}
 	else if(p_1->currentMoveDir - 1 < 0)
 	{
-		safeLine = (screen.getCenter().x + (SCRN_WIDTH / 2)) - SCRN_WIDTH / 3;
-		if (p_1->getPosition().x < safeLine && minLine > 0)
+		moveLine = (screen.getCenter().x + (SCRN_WIDTH / 2)) - SCRN_WIDTH / 3;
+		if (p_1->getPosition().x < moveLine && minLine > 0)
 		{
 			moveCam.x -= camSpeed;
 		}
@@ -327,16 +328,16 @@ void game::camera()
 
 
 
-void game::camera2()
+void game::camera()
 {
 	//const float increase = 0.05;
 	const float maxCamSpeed = 14.6;
 	float camSpeed = 0.7 + ((double)cameraTmer.getElapsedTime().asMilliseconds() / 700);
 	camSpeed = camSpeed > maxCamSpeed ? maxCamSpeed : camSpeed;
 	
-	float safeLine = p_1->getPosition().x + (p_1->currentMoveDir-1 * 64);
+	float moveLine = p_1->getPosition().x + (p_1->currentMoveDir-1 * 64);
 
-	float h = (safeLine - screen.getCenter().x) * (p_1->currentMoveDir - 1); // if > 0 move cam
+	float h = (moveLine - screen.getCenter().x) * (p_1->currentMoveDir - 1); // if > 0 move cam
 
 	Vector2f changePos(0, 0);
 

@@ -50,8 +50,13 @@ public:
 	/* SIGNALS */
 	//int sigLadder();
 	//void sigLadderReset() { ladderTime.restart(); };
-	//void jump();
-	const bool isJumping() { return isJump; };
+
+	/* Jumping */
+	void startJump() { isJumping = true; startingPositionY = avatar.getPosition().y; }; // Secured on game::mainLoop Key::Space
+	void endJump() { isJumping = false; };
+	const bool getJumpingVariable() { return isJumping; }; 
+	float startingPositionY;
+	/* Its just helper variable, everything is in physics::gravity */
 
 	void death(Vector2f checkpoint) { currentStats.HP = currentStats.max_hp; setPosition(checkpoint); }
 	void hitEffect();
@@ -113,8 +118,7 @@ private:
 	/* Physics */
 
 	//void jumping();
-	bool isJump;
-	int jumpingCounter;
+	bool isJumping;
 	/************/
 
 };

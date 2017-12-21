@@ -16,7 +16,7 @@ HUD::HUD(player &Player) : Player(Player)
 
 	valueOfStatistic[0] = Player.getHp(); 
 	valueOfStatistic[1] = Player.getMana();
-	valueOfStatistic[3] = Player.getExp();
+	valueOfStatistic[2] = Player.getExp();
 }
 
 

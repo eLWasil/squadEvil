@@ -5,7 +5,7 @@
 
 #define TILESIZE 64
 
-player::player() : isJump(false), currentDirState(dir::STOP), currentMoveDir(dir::FORWARD), hud(*this)
+player::player() : isJumping(false), currentDirState(dir::STOP), currentMoveDir(dir::FORWARD), hud(*this)
 {
 	String states[] = { "Attack", "Climb", "Dead", "Glide", "Idle", "Jump", "Jump_Attack", "Jump_Throw", "Run", "Slide", "Throw" };
 	for (int i = 0; i < 11; i++)
@@ -31,10 +31,8 @@ player::player() : isJump(false), currentDirState(dir::STOP), currentMoveDir(dir
 	avatar.setTexture(girlTex[cTextureState][0]);
 	avatar.setOrigin(avatar.getGlobalBounds().width / 2, avatar.getGlobalBounds().height / 2 * 0);
 	avatar.setScale(Vector2f(0.14, 0.14));
-	jumpingCounter = 2;
-
 	
-
+	startingPositionY = 0; // for jumping
 	hitColorCounter = 0;
 
 	skillBar[1] = skillBar[2] = skillBar[3] = 1;
@@ -95,11 +93,11 @@ void player::checkTexState()
 		avatarFramesTimer.restart();
 	}
 
-	if (isJump && currentDirState-1 == 0)
+	if (isJumping && currentDirState-1 == 0)
 	{
 		cTextureState = states::Jump;
 	}
-	else if (isJump && (currentDirState - 1) != 0)
+	else if (isJumping && (currentDirState - 1) != 0)
 	{
 		cTextureState = states::Jump_Throw;
 	}
@@ -126,13 +124,6 @@ void player::update()
 	//avatar.setOrigin(avatar.getGlobalBounds().width , avatar.getGlobalBounds().height );
 	//avatar.rotate(10);
 
-	
-	
-
-	if (isJump && jumpingCounter > 0)
-	{
-		//jumping();
-	}
 
 	if (hitColorTimer.getElapsedTime().asMilliseconds() > 300 && hitColorTimer.getElapsedTime().asMilliseconds() < 400)
 	{
@@ -206,7 +197,7 @@ void player::jumping()
 	else
 	{
 		jumpHightCounter = 0;
-		//isJump = false;
+		//isJumping = false;
 		jumpingCounter--;
 	}
 }
@@ -214,7 +205,7 @@ void player::jump()
 {
 	if (jumpingCounter > 0)
 	{
-		isJump = true;
+		isJumping = true;
 		cTextureState = states::Jump;
 	}
 }
