@@ -4,7 +4,8 @@ class campFire :
 	public accessories
 {
 public:
-	campFire(sf::Sprite sprite, string type);
+	//campFire(sf::Sprite sprite, string type);
+	campFire();
 	~campFire();
 
 	virtual void eventP(player *);

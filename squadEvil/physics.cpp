@@ -8,8 +8,8 @@ physics::physics()
 	this->map = map;
 	gravitationPower = 3;
 	controlPoint = Vector2f(0, 0);
-	maxMoveSpeed = 12;
-	acceleration = maxMoveSpeed / 1000; // maxMoveSpeed / seconds of speeding
+	maxMoveSpeed = 6;
+	acceleration = maxMoveSpeed / 500; // maxMoveSpeed / seconds of speeding
 }
 
 physics::~physics()
@@ -19,6 +19,22 @@ physics::~physics()
 void physics::setLevel(map_level *map)
 {
 	this->map = map;
+}
+
+bool physics::groudChecker(player *p)
+{
+	//tileonplayer
+	Vector2f groudTilePos(p->getPosition().x, p->getCorner(player::physicsPoints::LEFT_BOT).y + 6);
+	int tileType = map->getTileType(groudTilePos);
+
+	if (tileType != 0)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 void physics::gravity(player *p)
@@ -102,6 +118,7 @@ void physics::tileCollisions(player *p)
 	{
 		if (cDir < 0)
 		{
+			p->currentMoveDir = player::dir::BACK;
 			currentMoveSpeed *= -1;
 			if (p->getSprite().getScale().x > 0)
 			{
@@ -110,6 +127,7 @@ void physics::tileCollisions(player *p)
 		}
 		else if (cDir > 0)
 		{
+			p->currentMoveDir = player::dir::FORWARD;
 			if (p->getSprite().getScale().x < 0)
 			{
 				p->getSprite().setScale(p->getSprite().getScale().x * -1, p->getSprite().getScale().y);

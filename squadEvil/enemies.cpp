@@ -8,7 +8,7 @@ enemies::enemies() : isDead(false)
 {
 	attack = false;
 	hpBar.setFillColor(Color((82, 0, 10)));
-	hpBar.setPosition(this->position.x, this->position.y + 10);
+	hpBar.setPosition(this->sprite.getPosition().x, this->sprite.getPosition().y + 10);
 	Vector2f size(this->sprite.getGlobalBounds().width * stats.HP, 6);
 	hpBar.setSize(size);
 }

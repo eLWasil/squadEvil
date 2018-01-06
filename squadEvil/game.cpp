@@ -63,41 +63,21 @@ void game::mainLoop()
 				}
 				else if (handler.key.code == Keyboard::Right)
 				{
-					//p_1->move(player::dir::FORWARD);
-					//Physics.tileCollisions(p_1, player::dir::FORWARD);
-					p_1->currentDirState = player::dir::FORWARD;
+					p_1->currentDirState = player::dir::FORWARD; 
 				}
 				else if (handler.key.code == Keyboard::Left)
 				{
 					p_1->currentDirState = player::dir::BACK;
-					//Physics.tileCollisions(p_1, player::dir::BACK);
-					//p_1->move(player::dir::BACK);
 				}
 				else if (handler.key.code == Keyboard::Space)
 				{
-					//int sL = p_1->sigLadder();
-					//cout << "\nSpace: signal " << sL;
-					int sL = 0;
-					if (sL > 0)
+					if (!p_1->getJumpingVariable() && Physics.groudChecker(p_1))
 					{
-						p_1->setPosition(p_1->getPosition().x, p_1->getPosition().y - 32);
-
-						//p_1->setPosition(p_1->getPosition().x, p_1->getPosition().y + 16);
-						//cout << "LADDER TOUCH\n";
-						//p_1->ladderParamsX.x = level->others[i]->sprite.getPosition().x;
-						//p_1->ladderParamsX.y = p_1->ladderParamsX.x + level->others[i]->sprite.getGlobalBounds().width;
-					}
-					else
-					{
-						if (!p_1->getJumpingVariable())
-						{
-							p_1->startJump();
-						}
+						p_1->startJump();
 					}
 				}
 				else if (handler.key.code == Keyboard::Z)
 				{
-
 					skillsArray.push_back(p_1->getSkill(1));
 				}
 
@@ -121,7 +101,7 @@ void game::mainLoop()
 		window.setView(screen);
 
 		draw();
-		p_1->drawCorners(window);
+		//p_1->drawCorners(window);
 
 		window.display();
 		endOfLevel();
@@ -150,13 +130,13 @@ void game::draw()
 	}
 
 	/* OBJECTS */
-	vector<Sprite > frontObjects;
+	vector<Sprite *> frontObjects;
 	vector<enemies* > enemieObjects;
 	for (int i = 0; i < level->others.size(); i++)
 	{
-		if (level->others[i]->sprite.getPosition().x > (screen.getCenter().x - (SCRN_WIDTH / 2)) - 128)
+		if (level->others[i]->getSprite().getPosition().x > (screen.getCenter().x - (SCRN_WIDTH / 2)) - 128)
 		{
-			if (level->others[i]->sprite.getPosition().x < (screen.getCenter().x + (SCRN_WIDTH / 2)) + 256)
+			if (level->others[i]->getSprite().getPosition().x < (screen.getCenter().x + (SCRN_WIDTH / 2)) + 256)
 			{
 				if (level->others[i]->layer == accessories::Layer::FRONT)
 				{
@@ -171,12 +151,12 @@ void game::draw()
 					}
 					else
 					{
-						frontObjects.push_back(level->others[i]->sprite);
+						frontObjects.push_back(&level->others[i]->getSprite());
 					}
 				}
 				else
 				{
-					window.draw(level->others[i]->sprite);
+					window.draw(level->others[i]->getSprite());
 				}
 				level->others[i]->eventP(*p_1);
 
@@ -208,7 +188,7 @@ void game::draw()
 			for (size_t j = 0; j < enemieObjects.size(); j++)
 			{
 				window.draw(enemieObjects[i]->sprite);
-				if (enemieObjects[j]->sprite.getGlobalBounds().intersects(skillsArray[i]->getSprite().getGlobalBounds()))
+				if (enemieObjects[j]->getSprite().getGlobalBounds().intersects(skillsArray[i]->getSprite().getGlobalBounds()))
 				{
 					enemieObjects[j]->hit(skillsArray[i]);
 					skillsArray[i]->toRemove = true;
@@ -234,13 +214,11 @@ void game::draw()
 		//ENEMIES
 	for (size_t j = 0; j < enemieObjects.size(); j++)
 	{
-		window.draw(enemieObjects[j]->sprite);
+		window.draw(enemieObjects[j]->getSprite());
 		for (size_t i = 0; i < skillsArray.size(); i++)
 		{
-			if (enemieObjects[j]->sprite.getGlobalBounds().intersects(skillsArray[i]->getSprite().getGlobalBounds()))
+			if (enemieObjects[j]->getSprite().getGlobalBounds().intersects(skillsArray[i]->getSprite().getGlobalBounds()))
 			{
-				//enemieObjects[j]->hit(skillsArray[i]);
-
 				*enemieObjects[j] -= (int)skillsArray[i]->getDemage();
 				skillsArray[i]->toRemove = true;
 			}
@@ -265,15 +243,15 @@ void game::draw()
 	/* OTHERS */
 	for (size_t i = 0; i < frontObjects.size(); i++)
 	{
-		window.draw(frontObjects[i]);
+		window.draw(*frontObjects[i]);
 	}
 	p_1->hudEffect(window);
 }
 
-void game::camera2()
+void game::camera()
 {
 	const float maxCamSpeed = 14.6;
-	float camSpeed = 10 - ((double)cameraTmer.getElapsedTime().asMilliseconds() / 400);
+	float camSpeed = 2 + ((double)cameraTmer.getElapsedTime().asMilliseconds() / 600);
 	camSpeed = camSpeed > maxCamSpeed ? maxCamSpeed : camSpeed;
 	camSpeed = camSpeed < 2 ? 2 : camSpeed;
 
@@ -324,15 +302,11 @@ void game::camera2()
 	screen.move(moveCam);
 }
 
-
-
-
-
-void game::camera()
+void game::camera2()
 {
 	//const float increase = 0.05;
 	const float maxCamSpeed = 14.6;
-	float camSpeed = 0.7 + ((double)cameraTmer.getElapsedTime().asMilliseconds() / 700);
+	float camSpeed = 0.8 + ((double)cameraTmer.getElapsedTime().asMilliseconds() / 600);
 	camSpeed = camSpeed > maxCamSpeed ? maxCamSpeed : camSpeed;
 	
 	float moveLine = p_1->getPosition().x + (p_1->currentMoveDir-1 * 64);

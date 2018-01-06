@@ -14,11 +14,12 @@ public:
 	accessories();
 	virtual ~accessories();
 
-	sf::Sprite sprite;
-
 	virtual void eventP(player &) { };
 	virtual void drawable() {};
-	virtual bool update(); //return if delete object
+	virtual bool update(); //return true if u want remove 
+	virtual void setPosition(Vector2f);
+	virtual Sprite getSprite() { return sprite; };
+
 	bool update(map_level &) { return false; };
 
 	enum Layer
@@ -26,16 +27,19 @@ public:
 		BACK, FRONT
 	} layer;
 
-	string getName();
-protected:
-	string name;
-	sf::Vector2f position;
+	//string getName();
 
-	
+	virtual void setObjectTypeNumber(int k) { typeOfObjectByNr = k; };
+	virtual int getObjectTypeNumber() { return typeOfObjectByNr; };
+protected:
+	//string name;
+	sf::Sprite sprite;
+	sf::Texture texture;
 
 	Clock time;
 	bool remove;
 
+	int typeOfObjectByNr;
 private:
 };
 

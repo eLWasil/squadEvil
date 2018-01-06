@@ -9,9 +9,14 @@ public:
 	~physics();
 
 	void setLevel(map_level *);
+
 	void gravity(player* p);
+
 	void tileCollisions(player* p);
+
 	void jump(player *p);
+	bool groudChecker(player *);
+
 private:
 	map_level* map;
 	Vector2f controlPoint;

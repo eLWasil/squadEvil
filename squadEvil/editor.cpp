@@ -2,12 +2,14 @@
 #include "accessories.h"
 #include "SFML\Graphics\Sprite.hpp"
 
+const int tileCount = 19;
+//const int countOfAllSprites = 34;
 const int accessoriesTileMove = 16;
 const int areaTileMove = 64;
 bool editorVisable;
 bool reverseTile = false, darkMode = false;
 
-editor::editor(RenderWindow &window) : edWindow(window), currentTileType(1), interfaceMode(0), countSprite(33)
+editor::editor(RenderWindow &window) : edWindow(window), currentTileType(1), interfaceMode(0)
 {
 	SCRN_WIDTH = window.getSize().x;
 	SCRN_HEIGHT = window.getSize().y;
@@ -15,12 +17,10 @@ editor::editor(RenderWindow &window) : edWindow(window), currentTileType(1), int
 	screen.setCenter(SCRN_WIDTH / 2, SCRN_HEIGHT / 2);
 	mouseDelta = 0;
 
-	level.setHeight(SCRN_HEIGHT);
-
 	loadTex();
 }
 
-editor::editor(RenderWindow &window, string name) : level(name), edWindow(window), currentTileType(1), interfaceMode(0), countSprite(33)
+editor::editor(RenderWindow &window, string name) : level(name), edWindow(window), currentTileType(1), interfaceMode(0)
 {
 	SCRN_WIDTH = window.getSize().x;
 	SCRN_HEIGHT = window.getSize().y;
@@ -35,37 +35,43 @@ editor::editor(RenderWindow &window, string name) : level(name), edWindow(window
 
 editor::~editor()
 {
+	delete workingSprite;
 }
 
 void editor::loadTex()
 {
-	for (int i = 0; i < countSprite; i++)
+	for (int i = 0; i < level.tileTextures.size(); i++)
 	{
-		if (i < 19)
-		{
-			interfaceTiles[i].setTexture(level.TilesTex[i]);
-			allSprites[i].setTexture(level.TilesTex[i]);
-		}
-		else
-		{
-			interfaceTiles[i].setTexture(level.accessoryTex[i - 19]);
-			allSprites[i].setTexture(level.accessoryTex[i - 19]);
-		}
+		Sprite sprite;
+		sprite.setTexture(level.tileTextures[i]);
+
+		interfaceSprites.push_back(sprite);
+	}
+	level.loadObjectsSprites();
+
+	accessoryTex[0].loadFromFile("data/Graphics/Others/empty.png");
+	accessoryTex[1].loadFromFile("data/Graphics/Others/Object/coin.png");
+	accessoryTex[2].loadFromFile("data/Graphics/Others/Object/chests.png", sf::IntRect(0, 0, 32, 32));
+	accessoryTex[3].loadFromFile("data/Graphics/Others/Object/CampFire.png", sf::IntRect(0, 0, 64, 64));
+	accessoryTex[4].loadFromFile("data/Graphics/Others/Object/Crate.png");
+	accessoryTex[5].loadFromFile("data/Graphics/Others/Object/ladder.png");
+	accessoryTex[6].loadFromFile("data/Graphics/Others/enemies/angry_chicken.png");
+	accessoryTex[7].loadFromFile("data/Graphics/Others/enemies/warrior.png");
+	accessoryTex[8].loadFromFile("data/Graphics/Others/enemies/flower.png");
+	accessoryTex[9].loadFromFile("data/Graphics/Others/enemies/turtle.png");
+	accessoryTex[10].loadFromFile("data/Graphics/Others/Object/Bush (1).png");
+	accessoryTex[11].loadFromFile("data/Graphics/Others/Object/Bush (2).png");
+	accessoryTex[12].loadFromFile("data/Graphics/Others/Object/Bush (3).png");
+	accessoryTex[13].loadFromFile("data/Graphics/Others/Object/Bush (4).png");
+
+	for (int i = 0; i < level.allAccessoriesSprites.size(); i++)
+	{
+		Sprite sprite;
+		sprite.setTexture(accessoryTex[i]);
+		interfaceSprites.push_back(sprite);
 	}
 
-	widthInterfaceTile = SCRN_WIDTH / 16;
-	dist = ((SCRN_WIDTH / 16) - 64) / 2;
-
-
-	for (int i = 0; i < 10; i++)
-	{
-		accessoriesTiles[i].setTexture(level.accessoryTex[i]);
-		accessoriesTiles[i].setPosition(-64, -64);
-		accessoriesTilesInterface[i].setTexture(level.accessoryTex[i]);
-	}
-
-	currentAccessory = &allSprites[mouseDelta];
-
+	workingSprite = new Sprite(interfaceSprites[0]);
 	mainLoop();
 }
 
@@ -100,21 +106,25 @@ void editor::mainLoop()
 				{
 					mouseDelta = 0;
 				}
-				else if (mouseDelta >= countSprite)
+				else if (mouseDelta >= interfaceSprites.size())
 				{
-					mouseDelta = countSprite - 1;
+					mouseDelta = interfaceSprites.size() - 1;
 				}
-				currentAccessory = &allSprites[mouseDelta];
+				*workingSprite = interfaceSprites[mouseDelta];
 			}
 			else if (Mouse::isButtonPressed(Mouse::Left))
 			{
-				if (mouseDelta >= 0 && mouseDelta <= 18)
+				//const int countOfTiles = map_level::tileTypes::TILECOUNT;
+				const int countOfAccessories = level.getObjectTypesCount();
+
+				if (mouseDelta >= 0 && mouseDelta <= level.tileTextures.size() - 1)
 				{
-					level.setTile(*currentAccessory, mouseDelta);
+					//cout << "editor.cpp(116), mouseDelta: " << mouseDelta << endl;
+					level.setTile(*workingSprite, mouseDelta);
 				}
 				else
 				{
-					level.setAccessories(*currentAccessory, mouseDelta - 19);
+					level.setObject(*workingSprite, mouseDelta - 19);
 				}
 			}
 
@@ -136,7 +146,7 @@ void editor::mainLoop()
 				}
 				else if (handler.key.code == Keyboard::A)
 				{
-					if (currentAccessory->getPosition().x <= 0)
+					if (workingSprite->getPosition().x <= 0)
 					{
 					}
 					else
@@ -158,7 +168,7 @@ void editor::mainLoop()
 		//mousePos.y += screen.getCenter().y - (SCRN_HEIGHT / 2);
 		//cout << "MouseDelta: " << mouseDelta << endl;
 
-		if (mouseDelta <= 18)
+		if (mouseDelta < 19)
 		{
 			mousePos.x = int((mousePos.x + screen.getCenter().x - (SCRN_WIDTH / 2)) / 64) * 64;
 			mousePos.y = int((mousePos.y + screen.getCenter().y - (SCRN_HEIGHT / 2)) / 64) * 64;
@@ -167,12 +177,16 @@ void editor::mainLoop()
 		{
 			if (level.getNearestAccessory(mousePos))
 			{
-				mousePos = level.getNearestAccessory(mousePos)->sprite.getPosition();
+				mousePos = level.getNearestAccessory(mousePos)->getSprite().getPosition();
 			}
 		}
+		else
+		{
+			mousePos.x = int(mousePos.x + screen.getCenter().x - (SCRN_WIDTH / 2));
+			mousePos.y = int(mousePos.y + screen.getCenter().y - (SCRN_HEIGHT / 2));
+		}
 
-		currentAccessory->setPosition(mousePos);
-
+		workingSprite->setPosition(mousePos);
 
 		edWindow.clear(Color(149, 192, 247));
 
@@ -189,36 +203,35 @@ void editor::mainLoop()
 
 void editor::draw()
 {
-	Vector2f screenPosition(screen.getCenter().x - (SCRN_WIDTH / 2),
-	screen.getCenter().y - (SCRN_HEIGHT / 2));
-	level.background.setPosition(screenPosition);
-	edWindow.draw(level.background);
+	Vector2f screenPosition(screen.getCenter().x - (SCRN_WIDTH / 2), screen.getCenter().y - (SCRN_HEIGHT / 2));
+	level.backgroundSprite.setPosition(screenPosition);
+	edWindow.draw(level.backgroundSprite);
 
-	for (int i = 0; i < level.tileSprites.size(); i++)
+	for (int i = 0; i < level.getAreaVectorCount(); i++)
 	{
-		if (level.tileSprites[i].getPosition().x > screenPosition.x - 64)
+		if (level.getAreaSprite(i).getPosition().x > screenPosition.x - 64)
 		{
-			if (level.tileSprites[i].getPosition().x < screenPosition.x + SCRN_WIDTH + 64)
+			if (level.getAreaSprite(i).getPosition().x < screenPosition.x + SCRN_WIDTH + 64)
 			{
-				edWindow.draw(level.tileSprites[i]);
+				edWindow.draw(level.getAreaSprite(i));
 			}
 		}
 	}
 
-	for (int i = 0; i < level.others.size(); i++)
+	for (int i = 0; i < level.getObjectsCount(); i++)
 	{
-		if (level.others[i]->sprite.getPosition().x >(screen.getCenter().x - (SCRN_WIDTH / 2)) - 64)
+		if (level.getObjectAt(i)->getSprite().getPosition().x >(screen.getCenter().x - (SCRN_WIDTH / 2)) - 64)
 		{
-			if (level.others[i]->sprite.getPosition().x < (screen.getCenter().x + (SCRN_WIDTH / 2)) + 64)
+			if (level.getObjectAt(i)->getSprite().getPosition().x < (screen.getCenter().x + (SCRN_WIDTH / 2)) + 64)
 			{
-				edWindow.draw(level.others[i]->sprite);
+				edWindow.draw(level.getObjectAt(i)->getSprite());
 			}
 		}
 	}
 	drawInterface();
 
 
-	edWindow.draw(*currentAccessory);
+	edWindow.draw(*workingSprite);
 }
 
 void editor::drawInterface()
@@ -227,111 +240,23 @@ void editor::drawInterface()
 	positionOfFirst.x = screen.getCenter().x + (SCRN_WIDTH / 2) - 64;
 	positionOfFirst.y = screen.getCenter().y + (mouseDelta * 64);
 
-	for (size_t i = 0; i < countSprite; i++)
+	for (size_t i = 0; i < interfaceSprites.size(); i++)
 	{
-		interfaceTiles[i].setPosition(positionOfFirst.x - (i == mouseDelta ? 16 : 0), positionOfFirst.y - (i * 64));
-		edWindow.draw(interfaceTiles[i]);
+		interfaceSprites[i].setPosition(positionOfFirst.x - (i == mouseDelta ? 16 : 0), positionOfFirst.y - (i * 64));
+		edWindow.draw(interfaceSprites[i]);
 	}
 }
 
 string editor::getMapName()
 {
-	return level.name;
+	return level.getNameOfLevel();
 }
 
 void editor::save(string k)
 {
-
 	if (k.size() > 0)
 	{
-		level.name = k;
+		level.setName(k);
 	}
-
-	string name = "data/Levels/" + level.name + ".level";
-	fstream myMap;
-	myMap.open(name.c_str(), ios::out);
-
-	if (!myMap.is_open())
-	{
-		cout << "Blad, nie mozna otworzyc pliku!\n" << name << endl;
-	}
-
-	Vector2i mapSizes(level.tileMap.size(), level.tileMap[0].size());
-	Vector2i mapHeavenSizes(level.tileMapHeaven.size(), level.tileMapHeaven[0].size());
-
-	myMap << level.type << "\n";
-	myMap << mapSizes.x << " " << (mapSizes.y + mapHeavenSizes.y) << "\n";
-
-	for (int i = mapHeavenSizes.y - 1; i >= 0 ; i--)
-	{
-		for (int j = 0; j < mapHeavenSizes.x; j++)
-		{
-			myMap << level.tileMapHeaven[j][i] << " ";
-		}
-		myMap << "\n";
-	}
-
-	for (int i = 0; i < mapSizes.y; i++)
-	{
-		for (int j = 0; j < mapSizes.x; j++)
-		{
-			myMap << level.tileMap[j][i] << " ";
-		}
-		myMap << "\n";
-	}
-
-	if (level.others.size() > 10)
-	{
-		quicksort(level.others, 0, level.others.size() - 1);
-	}
-
-	for (int i = 0; i < level.others.size(); i++)
-	{
-		int x = level.others[i]->sprite.getPosition().x;
-		int y = level.others[i]->sprite.getPosition().y;
-		if (mapHeavenSizes.y > 0)
-		{
-			y += (mapHeavenSizes.y * 64);
-		}
-		myMap << level.others[i]->getName() << " " << x << " " << y << "\n";
-	}
-
-	myMap.close();
-}
-
-void editor::quicksort(vector <accessories*> &Array, int left, int right)
-{
-	int i = left;
-	int j = right;
-	int x = Array[(left + right) / 2]->sprite.getPosition().x;
-	
-	do
-	{
-		while (Array[i]->sprite.getPosition().x < x)
-		{
-			i++;
-		}
-		while (Array[j]->sprite.getPosition().x > x)
-		{
-			j--;
-		}
-		if (i <= j)
-		{
-			accessories *temp = Array[i];
-			Array[i] = Array[j];
-			Array[j] = temp;
-
-			i++;
-			j--;
-		}
-	} while (i <= j);
-
-	if (left < j)
-	{
-		quicksort(Array, left, j);
-	}
-	if (right > i)
-	{
-		quicksort(Array, i, right);
-	}
+	level.saveMap();
 }

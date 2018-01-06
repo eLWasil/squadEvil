@@ -3,11 +3,12 @@
 
 
 
-ladder::ladder(sf::Sprite obj, string type)
+ladder::ladder()
 {
-	sprite = obj;
-	name = type;
-	position = obj.getPosition();
+	sprite.setPosition(0, 0);
+
+	texture.loadFromFile("data/Graphics/Others/Object/ladder.png");
+	sprite.setTexture(texture);
 }
 
 

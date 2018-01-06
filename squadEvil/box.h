@@ -4,7 +4,7 @@ class box :
 	public accessories
 {
 public:
-	box(sf::Sprite sprite, string type);
+	box();
 	~box();
 
 	virtual void eventP(player &);

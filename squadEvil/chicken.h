@@ -4,12 +4,14 @@ class chicken :
 	public enemies
 {
 public:
-	chicken(sf::Sprite sprite, string type);
+	chicken();
 	~chicken();
 	virtual void eventP(player &);
 	virtual bool update(); 
 
 private:
+	Vector2f position;
+
 	int maxHP, currentHpOnBar;
 	float range;
 	int speed;

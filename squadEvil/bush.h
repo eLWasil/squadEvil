@@ -4,7 +4,11 @@ class bush :
 	public accessories
 {
 public:
-	bush(sf::Sprite sprite, string type);
+	bush();
 	~bush();
+
+private:
+	sf::Texture textures[4];
+	const int numberOfTex;
 };
 

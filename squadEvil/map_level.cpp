@@ -5,9 +5,7 @@
 #include "chest.h"
 #include "campFire.h"
 #include "ladder.h"
-#include "turtle.h"
 #include "warrior.h"
-#include "flower.h"
 #include "chicken.h"
 #include "bush.h"
 
@@ -49,12 +47,12 @@ map_level::map_level(string fileName)
 					/*
 					if (tileMap[j][i] < 0)
 					{
-						int k = tileMap[j][i] * -1;
-						tile.setTexture(TilesTex_r[k]);
+					int k = tileMap[j][i] * -1;
+					tile.setTexture(TilesTex_r[k]);
 					}
 					else
 					{
-						tile.setTexture(TilesTex[tileMap[j][i]]);
+					tile.setTexture(TilesTex[tileMap[j][i]]);
 					}
 					*/
 					tile.setTexture(TilesTex[tileMap[j][i]]);
@@ -62,7 +60,7 @@ map_level::map_level(string fileName)
 				}
 			}
 		}
-		
+
 		const int typeCount = 13;
 		string types[typeCount] = { "[COIN]", "[CHEST]", "[CAMPFIRE]", "[BOX]", "[LADDER]", "[CHICKEN]", "[WARRIOR]", "[FLOWER]", "[TURTLE]", "[BUSH_1]", "[BUSH_2]", "[BUSH_3]", "[BUSH_4]" };
 		while (!myMap.eof())
@@ -117,7 +115,7 @@ void map_level::loadTex()
 	accessoryTex[0].loadFromFile("data/Graphics/Others/empty.png");
 	accessoryTex[1].loadFromFile("data/Graphics/Others/Object/coin.png");
 	accessoryTex[2].loadFromFile("data/Graphics/Others/Object/chests.png", sf::IntRect(0, 0, 32, 32));
-	accessoryTex[3].loadFromFile("data/Graphics/Others/Object/CampFire.png", sf::IntRect(0, 0, 64, 64));	
+	accessoryTex[3].loadFromFile("data/Graphics/Others/Object/CampFire.png", sf::IntRect(0, 0, 64, 64));
 	accessoryTex[4].loadFromFile("data/Graphics/Others/Object/Crate.png");
 	accessoryTex[5].loadFromFile("data/Graphics/Others/Object/ladder.png");
 	accessoryTex[6].loadFromFile("data/Graphics/Others/enemies/angry_chicken.png");
@@ -136,7 +134,7 @@ void map_level::resize(int x, int y)
 {
 	if (tileMap.size() <= x)
 	{
-		tileMap.resize(x + 1); 
+		tileMap.resize(x + 1);
 		for (int i = 0; i < tileMap.size(); i++)
 		{
 			tileMap[i].resize(tileMap[0].size());
@@ -180,7 +178,7 @@ void map_level::setTile(sf::Sprite current, int type)
 	int j = current.getPosition().y / 64;
 
 	resize(i, j);
-	
+
 	if (j >= 0)
 	{
 		if ((tileMap[i][j] == 1 && type == 1) || (tileMap[i][j] == 10 && type == 10))
@@ -263,7 +261,7 @@ void map_level::setTile(sf::Sprite current, int type)
 		setTile(current, type);
 	}
 
-	
+
 }
 
 void map_level::setAccessories(sf::Sprite current, int type)
@@ -274,7 +272,7 @@ void map_level::setAccessories(sf::Sprite current, int type)
 	case map_level::EMPTY:
 		for (int i = 0; i < others.size(); i++)
 		{
-			if (current.getPosition() == others[i]->sprite.getPosition())
+			if (current.getPosition() == others[i]->getSprite().getPosition())
 			{
 				delete others[i];
 				others.erase(others.begin() + i);
@@ -283,56 +281,48 @@ void map_level::setAccessories(sf::Sprite current, int type)
 		}
 		break;
 	case map_level::COIN:
-		temp = new coin(current, "[COIN]");
+		temp = new coin();
 		others.push_back(temp);
 		break;
 	case map_level::CHEST:
-		temp = new chest(current, "[CHEST]");
+		temp = new chest();
 		others.push_back(temp);
 		break;
 	case map_level::CAMPFIRE:
-		temp = new campFire(current, "[CAMPFIRE]");
+		temp = new campFire();
 		others.push_back(temp);
 		break;
 	case map_level::BOX:
-		temp = new box(current, "[BOX]");
+		temp = new box();
 		others.push_back(temp);
 		break;
 	case map_level::LADDER:
-		temp = new ladder(current, "[LADDER]");
+		temp = new ladder();
 		others.push_back(temp);
 		break;
 	case map_level::CHICKEN:
-		temp = new chicken(current, "[CHICKEN]");
+		temp = new chicken();
 		others.push_back(temp);
 		break;
 	case map_level::WARRIOR:
-		temp = new warrior(current, "[WARRIOR]");
+		temp = new warrior();
 		dynamic_cast <warrior *>(temp)->setMap(tileMap);
 		others.push_back(temp);
 		break;
-	case map_level::FLOWER:
-		temp = new flower(current, "[FLOWER]");
-		others.push_back(temp);
-		break;
-	case map_level::TURTLE:
-		temp = new turtle(current, "[TURTLE]");
-		others.push_back(temp);
-		break;
 	case BUSH_1:
-		temp = new bush(current, "[BUSH_1]");
+		temp = new bush();
 		others.push_back(temp);
 		break;
 	case BUSH_2:
-		temp = new bush(current, "[BUSH_2]");
+		temp = new bush();
 		others.push_back(temp);
 		break;
 	case BUSH_3:
-		temp = new bush(current, "[BUSH_3]");
+		temp = new bush();
 		others.push_back(temp);
 		break;
 	case BUSH_4:
-		temp = new bush(current, "[BUSH_4]");
+		temp = new bush();
 		others.push_back(temp);
 		break;
 	default:
@@ -376,7 +366,7 @@ accessories* map_level::getNearestAccessory(Vector2f mousePos)
 	float range = 32;
 	for (int i = 0; i < others.size(); i++)
 	{
-		Vector2f pos = others[i]->sprite.getPosition();
+		Vector2f pos = others[i]->getSprite().getPosition();
 		if (abs(mousePos.x - pos.x) < range)
 		{
 			if (abs(mousePos.y - pos.y) < range)

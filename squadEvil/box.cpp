@@ -2,11 +2,12 @@
 
 
 
-box::box(sf::Sprite obj, string type)
+box::box()
 {
-	sprite = obj;
-	name = type;
-	position = obj.getPosition();
+	sprite.setPosition(0, 0);
+
+	texture.loadFromFile("data/Graphics/Others/Object/Crate.png");
+	sprite.setTexture(texture);
 
 }
 

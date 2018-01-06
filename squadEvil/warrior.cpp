@@ -2,11 +2,11 @@
 
 
 
-warrior::warrior(sf::Sprite obj, string type)
+warrior::warrior()
 {
-	sprite = obj;
-	name = type;
-	position = obj.getPosition();
+	sprite.setPosition(0, 0);
+	texture.loadFromFile("data/Graphics/Others/enemies/warrior.png");
+	sprite.setTexture(texture);
 
 	enemie.range = 256;
 
@@ -30,7 +30,7 @@ void warrior::setMap(std::vector <std::vector <int>> &level)
 
 void warrior::setLimits()
 {
-	Vector2f tileUnder((position.x + (sprite.getGlobalBounds().width / 2)) / 64, (position.y + sprite.getGlobalBounds().height + 2) / 64);
+	Vector2f tileUnder((sprite.getPosition().x + (sprite.getGlobalBounds().width / 2)) / 64, (sprite.getPosition().y + sprite.getGlobalBounds().height + 2) / 64);
 	//cout << map[tileUnder.x][tileUnder.y] << endl;
 	int rangeInTile = enemie.range / 64;
 

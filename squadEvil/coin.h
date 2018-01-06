@@ -4,14 +4,15 @@ class coin :
 	public accessories
 {
 public:
-	coin(sf::Sprite sprite, string type);
+	//coin(sf::Sprite sprite, string type);
+	coin();
 	~coin();
 
 	virtual void eventP(player &);
 	virtual void drawable();
 
 private:
-	float increase;
-	bool block;
+	float hightOfFly;
+	bool blockMutex;
 };
 

@@ -4,7 +4,8 @@ class chest :
 	public accessories
 {
 public:
-	chest(sf::Sprite sprite, string type);
+	//chest(sf::Sprite sprite, string type);
+	chest();
 	~chest();
 
 	virtual void eventP(player &);

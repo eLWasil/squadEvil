@@ -10,8 +10,6 @@ accessories::~accessories()
 {
 }
 
-string accessories::getName() { return name; }
-
 bool accessories::update()
 {
 	//cout << "accessories::getName() is working\n";
@@ -28,3 +26,7 @@ bool accessories::update()
 	return false;
 }
 
+void accessories::setPosition(Vector2f newPosition)
+{
+	sprite.setPosition(newPosition);
+}

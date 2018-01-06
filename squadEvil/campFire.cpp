@@ -2,15 +2,17 @@
 
 
 
-campFire::campFire(sf::Sprite obj, string type)
+campFire::campFire()
 {
-	sprite = obj;
-	name = type;
-	position = obj.getPosition();
+	sprite.setPosition(0, 0);
+
 	for (size_t i = 0; i < 5; i++)
 	{
 		texs[i].loadFromFile("data/Graphics/Others/Object/CampFire.png", IntRect(64 * i, 0, 64, 64));
 	}
+	texture = texs[0];
+	sprite.setTexture(texture);
+
 	fireCounter = 0;
 }
 

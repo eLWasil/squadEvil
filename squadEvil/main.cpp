@@ -9,7 +9,6 @@ int main()
 	options defaultO;
 	RenderWindow window;
 
-
 	bool fullscreen = false;
 	if (fullscreen)
 	{

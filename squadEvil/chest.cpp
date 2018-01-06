@@ -2,17 +2,17 @@
 
 
 
-chest::chest(sf::Sprite obj, string type)
+
+chest::chest()
 {
-	sprite = obj;
-	name = type;
-	position = obj.getPosition();
 	isOpen = false;
-	layer = Layer::BACK;
 
+	sprite.setPosition(0, 0);
+	texture.loadFromFile("data/Graphics/Others/Object/chests.png", sf::IntRect(0, 0, 32, 32));
 	openTex.loadFromFile("data/Graphics/Others/Object/chests.png", sf::IntRect(32, 0, 32, 32));
-}
 
+	sprite.setTexture(texture);
+}
 
 chest::~chest()
 {

@@ -1,20 +1,19 @@
-#include "chicken.h"
+ï»¿#include "chicken.h"
 
 
 
-chicken::chicken(sf::Sprite obj, string type)
+chicken::chicken()
 {
 	allTex[0].loadFromFile("data/Graphics/Others/enemies/angryChickenTileset.png", IntRect(0, 0, 64, 46));
 	allTex[1].loadFromFile("data/Graphics/Others/enemies/angryChickenTileset.png", IntRect(0, 46, 64, 46));
 	allTex[3].loadFromFile("data/Graphics/Others/enemies/h_angryChickenTileset.png", IntRect(0, 0, 64, 46));
 	allTex[4].loadFromFile("data/Graphics/Others/enemies/h_angryChickenTileset.png", IntRect(0, 46, 64, 46));
 
-	sprite.setPosition(obj.getPosition());
-	sprite.setTexture(allTex[0]);
+	sprite.setPosition(0, 0);
+	texture = allTex[0];
+	sprite.setTexture(texture);
 
-
-	name = type;
-	position = obj.getPosition();
+	position = sprite.getPosition();
 
 	angleIncrease = 0;
 	changeDir = false;
@@ -130,7 +129,7 @@ void chicken::eventP(player &Player)
 			}
 		}
 
-		// Ta 2 oznacza o ile siê zmienia max k¹t ptaków w czasie namierzaniu celu
+		// Ta 2 oznacza o ile siÃª zmienia max kÂ¹t ptakÃ³w w czasie namierzaniu celu
 		if (abs(degree - enemie.angle) >= 2)
 		{
 			angleIncrease = 2;
@@ -184,10 +183,10 @@ bool chicken::update()
 		Vector2f newPosition;
 		newPosition.x = sprite.getPosition().x + (enemie.speed * enemie.dir.x);
 		newPosition.y = sprite.getPosition().y + (enemie.speed * enemie.dir.y);
-		
+
 		if (!attack)
 		{
-			
+
 			if (enemie.dir.x < 0)
 			{
 				newPosition.x -= 1.5;

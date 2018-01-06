@@ -4,7 +4,7 @@ class ladder :
 	public accessories
 {
 public:
-	ladder(sf::Sprite sprite, string type);
+	ladder();
 	~ladder();
 	virtual void eventP(player &);
 };

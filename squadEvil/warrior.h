@@ -4,7 +4,7 @@ class warrior :
 	public enemies
 {
 public:
-	warrior(sf::Sprite sprite, string type);
+	warrior();
 	~warrior();
 
 	virtual bool update();
