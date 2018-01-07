@@ -52,8 +52,11 @@ map_of_level::map_of_level(string fileName)
 			sf::Vector2f pos(x, y);
 
 			accessories* temp = CreateObjectByTypeNumber(type);
-			temp->setPosition(pos);
-			objectsVector.push_back(temp);
+			if (temp != nullptr)
+			{
+				temp->setPosition(pos);
+				objectsVector.push_back(temp);
+			}
 		}
 		myMap.close();
 
@@ -114,7 +117,7 @@ void map_of_level::areaBuilder()
 	}
 	if (areaSprites.size() > 20)
 	{
-		sortTiles(0, areaSprites.size());
+		sortTiles(0, areaSprites.size() - 1);
 	}
 }
 
@@ -124,7 +127,7 @@ void map_of_level::resizeMap(int numberOfRows, int numberOfColumns)
 	{
 		if (TileMapInNumbers.size() < numberOfRows)
 		{
-			TileMapInNumbers.resize(numberOfRows);
+			TileMapInNumbers.resize(numberOfRows + 1);
 			for (int i = 0; i < TileMapInNumbers.size(); i++)
 			{
 				TileMapInNumbers[i].resize(TileMapInNumbers[0].size());
@@ -147,7 +150,7 @@ void map_of_level::resizeMap(int numberOfRows, int numberOfColumns)
 		{
 			for (int i = 0; i < TileMapInNumbers.size(); i++)
 			{
-				TileMapInNumbers[i].resize(numberOfColumns);
+				TileMapInNumbers[i].resize(numberOfColumns + 1);
 			}
 		}
 	}
@@ -208,6 +211,14 @@ accessories* map_of_level::CreateObjectByTypeNumber(int type)
 	return temp;
 }
 
+const int map_of_level::getTileType(Vector2f pos)
+{
+	int row = pos.y / 64;
+	int col = pos.x / 65;
+
+	return TileMapInNumbers[row][col];
+}
+
 void map_of_level::loadObjectsSprites()
 {
 	accessories* temp;
@@ -217,6 +228,12 @@ void map_of_level::loadObjectsSprites()
 		allAccessoriesSprites.push_back(temp->getSprite());
 		delete temp;
 	}
+}
+
+void map_of_level::deleteObjectAt(int index)
+{
+	delete objectsVector[index];
+	objectsVector.erase(objectsVector.begin() + index);
 }
 
 void map_of_level::setTile(Sprite current, int type)
@@ -270,7 +287,7 @@ void map_of_level::setObject(Sprite current, int type)
 accessories* map_of_level::getNearestAccessory(Vector2f mousePos)
 {
 	accessories* temp = 0;
-	float range = 32;
+	float range = 32;	
 	for (int i = 0; i < objectsVector.size(); i++)
 	{
 		Vector2f pos = objectsVector[i]->getSprite().getPosition();
@@ -327,6 +344,7 @@ void map_of_level::sortTiles(int left, int right)
 {
 	int i = left;
 	int j = right;
+
 	int x = areaSprites[(left + right) / 2].getPosition().x;
 
 	do

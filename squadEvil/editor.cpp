@@ -207,7 +207,7 @@ void editor::draw()
 	level.backgroundSprite.setPosition(screenPosition);
 	edWindow.draw(level.backgroundSprite);
 
-	for (int i = 0; i < level.getAreaVectorCount(); i++)
+	for (int i = 0; i < level.getAreaSpritesCount(); i++)
 	{
 		if (level.getAreaSprite(i).getPosition().x > screenPosition.x - 64)
 		{

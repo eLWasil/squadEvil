@@ -6,14 +6,13 @@ game::game(RenderWindow &window, options *sett) : window(window), settings(*sett
 {
 	p_1 = new Mage("Lukasz");
 	currentMapName = "Normal_1";
-	level = new map_level(currentMapName);
+	level = new map_of_level(currentMapName);
 	SCRN_WIDTH = window.getSize().x;
 	SCRN_HEIGHT = window.getSize().y;	
 	screen.setSize(SCRN_WIDTH, SCRN_HEIGHT);
 	screen.setCenter(SCRN_WIDTH / 2, SCRN_HEIGHT / 2);
 
 	Physics.setLevel(level);
-	p_1->setMap(level->tileMap);
 	
 	mainLoop();
 }
@@ -114,10 +113,10 @@ void game::draw()
 
 	Vector2f screenPosition(screen.getCenter().x - (SCRN_WIDTH / 2),
 	screen.getCenter().y - (SCRN_HEIGHT / 2));
-	level->background.setPosition(screenPosition);
-	window.draw(level->background);
+	level->backgroundSprite.setPosition(screenPosition);
+	window.draw(level->backgroundSprite);
 
-	/* MAP */
+	/* MAP /
 	for (int i = 0; i < level->tileSprites.size(); i++)
 	{
 		if (level->tileSprites[i].getPosition().x > screenPosition.x - 128)
@@ -127,21 +126,25 @@ void game::draw()
 				window.draw(level->tileSprites[i]);
 			}
 		}
+	}*/
+	for (int i = 0; i < level->getAreaSpritesCount(); i++)
+	{
+		window.draw(level->getAreaSprite(i));
 	}
 
 	/* OBJECTS */
 	vector<Sprite *> frontObjects;
 	vector<enemies* > enemieObjects;
-	for (int i = 0; i < level->others.size(); i++)
+	for (int i = 0; i < level->getObjectsCount(); i++)
 	{
-		if (level->others[i]->getSprite().getPosition().x > (screen.getCenter().x - (SCRN_WIDTH / 2)) - 128)
+		if (level->getObjectAt(i)->getSprite().getPosition().x > (screen.getCenter().x - (SCRN_WIDTH / 2)) - 128)
 		{
-			if (level->others[i]->getSprite().getPosition().x < (screen.getCenter().x + (SCRN_WIDTH / 2)) + 256)
+			if (level->getObjectAt(i)->getSprite().getPosition().x < (screen.getCenter().x + (SCRN_WIDTH / 2)) + 256)
 			{
-				if (level->others[i]->layer == accessories::Layer::FRONT)
+				if (level->getObjectAt(i)->layer == accessories::Layer::FRONT)
 				{
 					/* ENEMIE CHECKER */
-					enemies *temp = dynamic_cast<enemies*>(level->others[i]);
+					enemies *temp = dynamic_cast<enemies*>(level->getObjectAt(i));
 					if (temp)
 					{
 						if (!temp->isDead)
@@ -151,19 +154,18 @@ void game::draw()
 					}
 					else
 					{
-						frontObjects.push_back(&level->others[i]->getSprite());
+						frontObjects.push_back(&level->getObjectAt(i)->getSprite());
 					}
 				}
 				else
 				{
-					window.draw(level->others[i]->getSprite());
+					window.draw(level->getObjectAt(i)->getSprite());
 				}
-				level->others[i]->eventP(*p_1);
+				level->getObjectAt(i)->eventP(*p_1);
 
-				if (level->others[i]->update())
+				if (level->getObjectAt(i)->update())
 				{
-					delete level->others[i];
-					level->others.erase(level->others.begin() + i);
+
 					//cout << "Usunalem nr. " << i << endl;
 				}
 			}
@@ -356,7 +358,7 @@ void game::camera2()
 
 void game::endOfLevel()
 {
-	if (p_1->getPosition().x > level->mapSize().x * 64)
+	if (p_1->getPosition().x > level->getMapSizePx())
 	{
 		string nameLevel = f_manager.nextFile("data/Levels", currentMapName);
 		p_1->setPosition(0, 0);
@@ -405,9 +407,8 @@ void game::endOfLevel()
 				if (timer.getElapsedTime().asMilliseconds() >= 4000)
 				{
 					delete level;
-					level = new map_level(nameLevel);
+					level = new map_of_level(nameLevel);
 
-					p_1->setMap(level->tileMap);
 					currentMapName = nameLevel;
 					break;
 				}

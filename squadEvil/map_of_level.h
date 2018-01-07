@@ -22,13 +22,16 @@ public:
 	string getNameOfLevel() { return nameOfLevel; };
 	string getTypeOfMap() { return typeOfMap; };
 		// Areas 
-	const int getAreaVectorCount() { return areaSprites.size(); };
+	const int getSizeMapInNumbers() { return TileMapInNumbers.size(); }
+	const int getAreaSpritesCount() { return areaSprites.size(); };
+	const int getTileType(Vector2f pos);
+	int getMapSizePx() { return (TileMapInNumbers[0].size() - 1) * 64; };
 	const Sprite getAreaSprite(int k) { return areaSprites[k]; };
 		// Objects 
 	const int getObjectTypesCount() { return accessoryTypes::COUNT; };
 	const int getObjectsCount() { return objectsVector.size(); };
 	accessories* getObjectAt(int index) { return objectsVector[index]; };
-	 
+	void deleteObjectAt(int index);
 
 	/* Editor */
 	void setTile(Sprite current, int type);

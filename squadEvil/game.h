@@ -1,5 +1,5 @@
 #pragma once
-#include "map_level.h"
+#include "map_of_level.h"
 #include "Mage.h"
 #include "options.h"
 #include "FileMenager.h"
@@ -12,7 +12,7 @@ public:
 	game(RenderWindow &window, options *setting);
 	~game();
 
-	map_level *level;
+	map_of_level *level;
 	void mainLoop();
 	options &settings;
 	string currentMapName;

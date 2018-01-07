@@ -16,7 +16,7 @@ physics::~physics()
 {
 }
 
-void physics::setLevel(map_level *map)
+void physics::setLevel(map_of_level *map)
 {
 	this->map = map;
 }
@@ -74,11 +74,11 @@ void physics::gravity(player *p)
 		int timer = gravitySpeedTimer.getElapsedTime().asMilliseconds();
 		int mod = gravitationPower + ((timer > 1000 ? 1000 : timer) / 50);
 		Vector2f newPosition = Vector2f(p->getPosition().x, p->getPosition().y + mod);
-		Vector2i tileOnNewPosition(p->getCorner(player::physicsPoints::CENTER).x / TILESIZE, (p->getCorner(player::physicsPoints::RIGHT_BOT).y + mod) / TILESIZE);
+		Vector2f tileOnNewPosition(p->getCorner(player::physicsPoints::CENTER).x, (p->getCorner(player::physicsPoints::RIGHT_BOT).y + mod));
 
-		if (map->tileMap[tileOnNewPosition.x][tileOnNewPosition.y] == 0)
+		if (map->getTileType(tileOnNewPosition) == 0)
 		{
-			if (newPosition.y > (map->tileMap.size() - 5) * TILESIZE)
+			if (newPosition.y > (map->getSizeMapInNumbers() - 5) * TILESIZE)
 			{
 				p->setPosition(controlPoint);
 			}
@@ -139,7 +139,7 @@ void physics::tileCollisions(player *p)
 		{
 			newPosition.x = 0;
 		}
-		else if (newPosition.x > map->getMapSizeX())
+		else if (newPosition.x > map->getMapSizePx())
 		{
 			currentMoveSpeed = 0;
 		}

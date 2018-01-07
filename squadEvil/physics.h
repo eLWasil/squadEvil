@@ -1,5 +1,5 @@
 #pragma once
-#include "map_level.h"
+#include "map_of_level.h"
 #include "player.h"
 
 class physics
@@ -8,7 +8,7 @@ public:
 	physics();
 	~physics();
 
-	void setLevel(map_level *);
+	void setLevel(map_of_level *);
 
 	void gravity(player* p);
 
@@ -18,7 +18,7 @@ public:
 	bool groudChecker(player *);
 
 private:
-	map_level* map;
+	map_of_level* map;
 	Vector2f controlPoint;
 
 	/* Gravity */
