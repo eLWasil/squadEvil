@@ -15,9 +15,14 @@ editor::editor(RenderWindow &window) : edWindow(window), currentTileType(1), int
 	SCRN_HEIGHT = window.getSize().y;
 	screen.setSize(SCRN_WIDTH, SCRN_HEIGHT);
 	screen.setCenter(SCRN_WIDTH / 2, SCRN_HEIGHT / 2);
-	mouseDelta = 0;
 
-	loadTex();
+
+	loadInterace();
+	mouseDelta = 0;
+	setWorkingSprite(mouseDelta);
+
+
+	mainLoop();
 }
 
 editor::editor(RenderWindow &window, string name) : level(name), edWindow(window), currentTileType(1), interfaceMode(0)
@@ -26,53 +31,19 @@ editor::editor(RenderWindow &window, string name) : level(name), edWindow(window
 	SCRN_HEIGHT = window.getSize().y;
 	screen.setSize(SCRN_WIDTH, SCRN_HEIGHT);
 	screen.setCenter(SCRN_WIDTH / 2, SCRN_HEIGHT / 2);
-	mouseDelta = 0;
 
-	loadTex();
+	loadInterace();
+	mouseDelta = 0;
+	setWorkingSprite(mouseDelta);
+
+	mainLoop();
 }
 
 
 
 editor::~editor()
 {
-	delete workingSprite;
-}
-
-void editor::loadTex()
-{
-	for (int i = 0; i < level.tileTextures.size(); i++)
-	{
-		Sprite sprite;
-		sprite.setTexture(level.tileTextures[i]);
-
-		interfaceSprites.push_back(sprite);
-	}
-	level.loadObjectsSprites();
-
-	accessoryTex[0].loadFromFile("data/Graphics/Others/empty.png");
-	accessoryTex[1].loadFromFile("data/Graphics/Others/Object/coin.png");
-	accessoryTex[2].loadFromFile("data/Graphics/Others/Object/chests.png", sf::IntRect(0, 0, 32, 32));
-	accessoryTex[3].loadFromFile("data/Graphics/Others/Object/CampFire.png", sf::IntRect(0, 0, 64, 64));
-	accessoryTex[4].loadFromFile("data/Graphics/Others/Object/Crate.png");
-	accessoryTex[5].loadFromFile("data/Graphics/Others/Object/ladder.png");
-	accessoryTex[6].loadFromFile("data/Graphics/Others/enemies/angry_chicken.png");
-	accessoryTex[7].loadFromFile("data/Graphics/Others/enemies/warrior.png");
-	accessoryTex[8].loadFromFile("data/Graphics/Others/enemies/flower.png");
-	accessoryTex[9].loadFromFile("data/Graphics/Others/enemies/turtle.png");
-	accessoryTex[10].loadFromFile("data/Graphics/Others/Object/Bush (1).png");
-	accessoryTex[11].loadFromFile("data/Graphics/Others/Object/Bush (2).png");
-	accessoryTex[12].loadFromFile("data/Graphics/Others/Object/Bush (3).png");
-	accessoryTex[13].loadFromFile("data/Graphics/Others/Object/Bush (4).png");
-
-	for (int i = 0; i < level.allAccessoriesSprites.size(); i++)
-	{
-		Sprite sprite;
-		sprite.setTexture(accessoryTex[i]);
-		interfaceSprites.push_back(sprite);
-	}
-
-	workingSprite = new Sprite(interfaceSprites[0]);
-	mainLoop();
+	
 }
 
 void editor::mainLoop() 
@@ -102,15 +73,7 @@ void editor::mainLoop()
 			if (handler.type == Event::MouseWheelMoved)
 			{
 				mouseDelta += handler.mouseWheel.delta;
-				if (mouseDelta < 0)
-				{
-					mouseDelta = 0;
-				}
-				else if (mouseDelta >= interfaceSprites.size())
-				{
-					mouseDelta = interfaceSprites.size() - 1;
-				}
-				*workingSprite = interfaceSprites[mouseDelta];
+				setWorkingSprite(mouseDelta);
 			}
 			else if (Mouse::isButtonPressed(Mouse::Left))
 			{
@@ -120,11 +83,11 @@ void editor::mainLoop()
 				if (mouseDelta >= 0 && mouseDelta <= level.tileTextures.size() - 1)
 				{
 					//cout << "editor.cpp(116), mouseDelta: " << mouseDelta << endl;
-					level.setTile(*workingSprite, mouseDelta);
+					level.setTile(workingSprite, mouseDelta);
 				}
 				else
 				{
-					level.setObject(*workingSprite, mouseDelta - 19);
+					level.setObject(workingSprite, mouseDelta - 19);
 				}
 			}
 
@@ -146,7 +109,7 @@ void editor::mainLoop()
 				}
 				else if (handler.key.code == Keyboard::A)
 				{
-					if (workingSprite->getPosition().x <= 0)
+					if (workingSprite.getPosition().x <= 0)
 					{
 					}
 					else
@@ -168,12 +131,12 @@ void editor::mainLoop()
 		//mousePos.y += screen.getCenter().y - (SCRN_HEIGHT / 2);
 		//cout << "MouseDelta: " << mouseDelta << endl;
 
-		if (mouseDelta < 19)
+		if (mouseDelta < level.tileTextures.size())
 		{
 			mousePos.x = int((mousePos.x + screen.getCenter().x - (SCRN_WIDTH / 2)) / 64) * 64;
 			mousePos.y = int((mousePos.y + screen.getCenter().y - (SCRN_HEIGHT / 2)) / 64) * 64;
 		}
-		else if (mouseDelta == 19)
+		else if (mouseDelta == interfaceSprites.size() - 1)
 		{
 			if (level.getNearestAccessory(mousePos))
 			{
@@ -186,7 +149,7 @@ void editor::mainLoop()
 			mousePos.y = int(mousePos.y + screen.getCenter().y - (SCRN_HEIGHT / 2));
 		}
 
-		workingSprite->setPosition(mousePos);
+		workingSprite.setPosition(mousePos);
 
 		edWindow.clear(Color(149, 192, 247));
 
@@ -199,6 +162,40 @@ void editor::mainLoop()
 	}
 
 
+}
+
+void editor::setWorkingSprite(int newDelta)
+{
+	int deltaMax = interfaceSprites.size();
+	if (newDelta < 0)
+	{
+		newDelta = 0;
+	}
+	else if (newDelta >= deltaMax)
+	{
+		newDelta = deltaMax - 1;
+	}
+
+	workingSprite = interfaceSprites[newDelta];
+
+	mouseDelta = newDelta;
+}
+
+void editor::loadInterace()
+{
+	for (int i = 0; i < level.tileTextures.size(); i++)
+	{
+		Sprite sprite;
+		sprite.setTexture(level.tileTextures[i]);
+		interfaceSprites.push_back(sprite);
+	}
+
+	for (int i = 0; i < level.allAccessoriesObjects.size(); i++)
+	{
+		interfaceSprites.push_back(level.allAccessoriesObjects[i]->getSprite());
+	}
+
+	interfaceSprites.push_back(interfaceSprites[0]);
 }
 
 void editor::draw()
@@ -231,7 +228,7 @@ void editor::draw()
 	drawInterface();
 
 
-	edWindow.draw(*workingSprite);
+	edWindow.draw(workingSprite);
 }
 
 void editor::drawInterface()
@@ -240,7 +237,7 @@ void editor::drawInterface()
 	positionOfFirst.x = screen.getCenter().x + (SCRN_WIDTH / 2) - 64;
 	positionOfFirst.y = screen.getCenter().y + (mouseDelta * 64);
 
-	for (size_t i = 0; i < interfaceSprites.size(); i++)
+	for (size_t i = 1; i < interfaceSprites.size(); i++)
 	{
 		interfaceSprites[i].setPosition(positionOfFirst.x - (i == mouseDelta ? 16 : 0), positionOfFirst.y - (i * 64));
 		edWindow.draw(interfaceSprites[i]);

@@ -16,7 +16,9 @@ map_of_level::map_of_level() : nameOfLevel("New map"), typeOfMap("Normal")
 {
 	backgroundBuilder();
 	tileTexLoader();
+	loadObjectsToVector();
 	resizeMap(20, 40);
+
 }
 
 map_of_level::map_of_level(string fileName)
@@ -64,6 +66,7 @@ map_of_level::map_of_level(string fileName)
 		tileTexLoader();
 		areaBuilder();
 	}
+	loadObjectsToVector();
 }
 
 
@@ -72,6 +75,11 @@ map_of_level::~map_of_level()
 	for (int i = 0; i < objectsVector.size(); i++)
 	{
 		delete objectsVector[i];
+	}
+
+	for (int i = 0; i < allAccessoriesObjects.size(); i++)
+	{
+		delete allAccessoriesObjects[i];
 	}
 }
 
@@ -111,13 +119,21 @@ void map_of_level::areaBuilder()
 				sprite.setPosition(j*TILESIZE, i*TILESIZE);
 				sprite.setTexture(tileTextures[TileMapInNumbers[i][j]]);
 
-				areaSprites.push_back(sprite);
+				mapAreaSprites.push_back(sprite);
 			}
 		}
 	}
-	if (areaSprites.size() > 20)
+	if (mapAreaSprites.size() > 20)
 	{
-		sortTiles(0, areaSprites.size() - 1);
+		sortTiles(0, mapAreaSprites.size() - 1);
+	}
+}
+
+void map_of_level::loadObjectsToVector()
+{
+	for (int i = 0; i < accessoryTypes::COUNT; i++)
+	{
+		allAccessoriesObjects.push_back(CreateObjectByTypeNumber(i));
 	}
 }
 
@@ -219,17 +235,6 @@ const int map_of_level::getTileType(Vector2f pos)
 	return TileMapInNumbers[row][col];
 }
 
-void map_of_level::loadObjectsSprites()
-{
-	accessories* temp;
-	for (int i = 1; i < map_of_level::accessoryTypes::COUNT; i++)
-	{
-		temp = CreateObjectByTypeNumber(i);
-		allAccessoriesSprites.push_back(temp->getSprite());
-		delete temp;
-	}
-}
-
 void map_of_level::deleteObjectAt(int index)
 {
 	delete objectsVector[index];
@@ -246,16 +251,16 @@ void map_of_level::setTile(Sprite current, int type)
 	if (type > 0)
 	{
 		TileMapInNumbers[row][col] = type;
-		areaSprites.push_back(current);
+		mapAreaSprites.push_back(current);
 	}
 	else
 	{
 		TileMapInNumbers[row][col] = 0;
-		for (int i = 0; i < areaSprites.size(); i++)
+		for (int i = 0; i < mapAreaSprites.size(); i++)
 		{
-			if (areaSprites[i].getPosition() == current.getPosition())
+			if (mapAreaSprites[i].getPosition() == current.getPosition())
 			{
-				areaSprites.erase(areaSprites.begin() + i);
+				mapAreaSprites.erase(mapAreaSprites.begin() + i);
 			}
 		}
 	}
@@ -270,7 +275,7 @@ void map_of_level::setObject(Sprite current, int type)
 		temp->setPosition(current.getPosition());
 		objectsVector.push_back(temp);
 	}
-	else
+	else if (type == map_of_level::COUNT)
 	{
 		for (int i = 0; i < objectsVector.size(); i++)
 		{
@@ -345,23 +350,23 @@ void map_of_level::sortTiles(int left, int right)
 	int i = left;
 	int j = right;
 
-	int x = areaSprites[(left + right) / 2].getPosition().x;
+	int x = mapAreaSprites[(left + right) / 2].getPosition().x;
 
 	do
 	{
-		while (areaSprites[i].getPosition().x < x)
+		while (mapAreaSprites[i].getPosition().x < x)
 		{
 			i++;
 		}
-		while (areaSprites[j].getPosition().x > x)
+		while (mapAreaSprites[j].getPosition().x > x)
 		{
 			j--;
 		}
 		if (i <= j)
 		{
-			Sprite temp = areaSprites[i];
-			areaSprites[i] = areaSprites[j];
-			areaSprites[j] = temp;
+			Sprite temp = mapAreaSprites[i];
+			mapAreaSprites[i] = mapAreaSprites[j];
+			mapAreaSprites[j] = temp;
 
 			i++;
 			j--;

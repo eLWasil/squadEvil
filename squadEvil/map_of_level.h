@@ -23,10 +23,10 @@ public:
 	string getTypeOfMap() { return typeOfMap; };
 		// Areas 
 	const int getSizeMapInNumbers() { return TileMapInNumbers.size(); }
-	const int getAreaSpritesCount() { return areaSprites.size(); };
+	const int getAreaSpritesCount() { return mapAreaSprites.size(); };
 	const int getTileType(Vector2f pos);
 	int getMapSizePx() { return (TileMapInNumbers[0].size() - 1) * 64; };
-	const Sprite getAreaSprite(int k) { return areaSprites[k]; };
+	const Sprite getAreaSprite(int k) { return mapAreaSprites[k]; };
 		// Objects 
 	const int getObjectTypesCount() { return accessoryTypes::COUNT; };
 	const int getObjectsCount() { return objectsVector.size(); };
@@ -41,8 +41,8 @@ public:
 	void saveMap();
 
 
-	void loadObjectsSprites();
 	vector <Sprite > allAccessoriesSprites; //only if loaded, for editor Interface, TODO: editor: HUD with tiles
+	vector <accessories *> allAccessoriesObjects;
 	vector <Texture > tileTextures;
 
 	Sprite backgroundSprite;
@@ -53,12 +53,11 @@ private:
 
 	vector <vector <int >> TileMapInNumbers;
 	vector <accessories *> objectsVector;
-	vector <Sprite > areaSprites;
+	vector <Sprite > mapAreaSprites;
 
 	void resizeMap(int x, int y);
 
 	enum accessoryTypes {
-		EMPTY,
 		COIN, CHEST, CAMPFIRE, BOX, LADDER,
 		CHICKEN, WARRIOR,
 		BUSH,
@@ -69,6 +68,7 @@ private:
 	void backgroundBuilder();
 	void tileTexLoader();
 	void areaBuilder();
+	void loadObjectsToVector();
 
 	void sortObjects(int left, int right);
 	void sortTiles(int left, int right);

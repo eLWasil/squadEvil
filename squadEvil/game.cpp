@@ -141,6 +141,8 @@ void game::draw()
 		{
 			if (level->getObjectAt(i)->getSprite().getPosition().x < (screen.getCenter().x + (SCRN_WIDTH / 2)) + 256)
 			{
+				level->getObjectAt(i)->eventP(*p_1);
+
 				if (level->getObjectAt(i)->layer == accessories::Layer::FRONT)
 				{
 					/* ENEMIE CHECKER */
@@ -150,6 +152,10 @@ void game::draw()
 						if (!temp->isDead)
 						{
 							enemieObjects.push_back(temp);
+						}
+						else
+						{
+							level->deleteObjectAt(i);
 						}
 					}
 					else
@@ -161,12 +167,11 @@ void game::draw()
 				{
 					window.draw(level->getObjectAt(i)->getSprite());
 				}
-				level->getObjectAt(i)->eventP(*p_1);
+
 
 				if (level->getObjectAt(i)->update())
 				{
 
-					//cout << "Usunalem nr. " << i << endl;
 				}
 			}
 			else
@@ -358,8 +363,10 @@ void game::camera2()
 
 void game::endOfLevel()
 {
-	if (p_1->getPosition().x > level->getMapSizePx())
+	if (p_1->fEndOfLevel)
 	{
+		p_1->fEndOfLevel = false;
+
 		string nameLevel = f_manager.nextFile("data/Levels", currentMapName);
 		p_1->setPosition(0, 0);
 

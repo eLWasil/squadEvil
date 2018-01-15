@@ -26,9 +26,12 @@ private:
 	RenderWindow &edWindow;
 	View screen;
 
-	Sprite *workingSprite;
+	Sprite workingSprite;
+	void setWorkingSprite(int newDelta);
+
 	vector <Sprite > interfaceSprites;
-	Texture accessoryTex[14];
+	void loadInterace();
+	//Texture accessoryTex[14];
 
 	//Sprite interfaceTiles[34];
 	//Sprite allSprites[34];
@@ -41,7 +44,6 @@ private:
 	int interfaceMode;
 	Texture coinsModeTex[4];
 
-	void loadTex();
 	void draw();
 	void drawInterface();
 

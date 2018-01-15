@@ -7,6 +7,7 @@
 
 player::player() : isJumping(false), currentDirState(dir::STOP), currentMoveDir(dir::FORWARD), hud(*this)
 {
+	fEndOfLevel = false;
 	String states[] = { "Attack", "Climb", "Dead", "Glide", "Idle", "Jump", "Jump_Attack", "Jump_Throw", "Run", "Slide", "Throw" };
 	for (int i = 0; i < 11; i++)
 	{

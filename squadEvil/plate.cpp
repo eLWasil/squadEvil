@@ -13,3 +13,11 @@ plate::plate()
 plate::~plate()
 {
 }
+
+void plate::eventP(player &p)
+{
+	if (sprite.getGlobalBounds().intersects(p.getSprite().getGlobalBounds()))
+	{
+		p.fEndOfLevel = true;
+	}
+}

@@ -6,8 +6,8 @@ chicken::chicken()
 {
 	allTex[0].loadFromFile("data/Graphics/Others/enemies/angryChickenTileset.png", IntRect(0, 0, 64, 46));
 	allTex[1].loadFromFile("data/Graphics/Others/enemies/angryChickenTileset.png", IntRect(0, 46, 64, 46));
-	allTex[3].loadFromFile("data/Graphics/Others/enemies/h_angryChickenTileset.png", IntRect(0, 0, 64, 46));
-	allTex[4].loadFromFile("data/Graphics/Others/enemies/h_angryChickenTileset.png", IntRect(0, 46, 64, 46));
+	allTex[2].loadFromFile("data/Graphics/Others/enemies/h_angryChickenTileset.png", IntRect(0, 0, 64, 46));
+	allTex[3].loadFromFile("data/Graphics/Others/enemies/h_angryChickenTileset.png", IntRect(0, 46, 64, 46));
 
 	sprite.setPosition(0, 0);
 	texture = allTex[0];
@@ -34,6 +34,8 @@ chicken::chicken()
 
 	maxHP = stats.HP;
 	currentHpOnBar = stats.HP;
+
+	isHFlagOpen = true;
 }
 
 
@@ -157,14 +159,18 @@ void chicken::eventP(player &Player)
 		targetChanging = false;
 	}
 
+
+	/* PLAYER COLLISION */
 	if (sprite.getGlobalBounds().intersects(Player.getConstSprite().getGlobalBounds()))
 	{
-		if (hittimer.getElapsedTime().asMilliseconds() > 1000)
+		if (isHFlagOpen)
 		{
+			isHFlagOpen = false;
+			hittimer.restart();
+
 			Player.hitEffect();
 			Player -= stats.demage;
 
-			//cout << "chicken.hpp(167): " << this->position.x << ", " << this->position.y << " " << isDead << endl;
 
 			enemie.speed = attackSpeed;
 			hittimer.restart();
@@ -172,6 +178,12 @@ void chicken::eventP(player &Player)
 			target = position;
 			targetChanging = true;
 		}
+		else if (hittimer.getElapsedTime().asMilliseconds() > 1000)
+		{
+			isHFlagOpen = true;
+		}
+
+		
 	}
 }
 

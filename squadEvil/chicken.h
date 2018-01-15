@@ -26,6 +26,7 @@ private:
 	bool DMG;
 
 	Clock timer, hittimer;
+	bool isHFlagOpen;
 	Vector2f target;
 	float attackSpeed;
 	float angleSpeed;

@@ -1,12 +1,10 @@
 #pragma once
 #include "accessories.h"
-class plate :
+class empty :
 	public accessories
 {
 public:
-	plate();
-	~plate();
-
-	virtual void eventP(player &);
+	empty();
+	~empty();
 };
 

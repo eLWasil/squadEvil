@@ -47,9 +47,10 @@ public:
 	int operator++(int) { currentStats.gold++; return currentStats.gold; };
 	int operator-=(int k) { currentStats.HP = (currentStats.HP - k < 0 ? 0 : currentStats.HP - k); return currentStats.HP; }
 
-	/* SIGNALS */
-	//int sigLadder();
-	//void sigLadderReset() { ladderTime.restart(); };
+	/* FLAGS */
+	bool fEndOfLevel;
+	//int flagLadder();
+	//void flagLadderReset() { ladderTime.restart(); };
 
 	/* Jumping */
 	void startJump() { isJumping = true; startingPositionY = avatar.getPosition().y; }; // Secured on game::mainLoop Key::Space
