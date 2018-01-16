@@ -13,6 +13,8 @@ game::game(RenderWindow &window, options *sett) : window(window), settings(*sett
 	screen.setCenter(SCRN_WIDTH / 2, SCRN_HEIGHT / 2);
 
 	Physics.setLevel(level);
+
+	cameraTarget = screen.getCenter();
 	
 	mainLoop();
 }
@@ -255,7 +257,7 @@ void game::draw()
 	p_1->hudEffect(window);
 }
 
-void game::camera()
+void game::camera2()
 {
 	const float maxCamSpeed = 14.6;
 	float camSpeed = 2 + ((double)cameraTmer.getElapsedTime().asMilliseconds() / 600);
@@ -309,56 +311,75 @@ void game::camera()
 	screen.move(moveCam);
 }
 
-void game::camera2()
+void game::camera()
 {
-	//const float increase = 0.05;
-	const float maxCamSpeed = 14.6;
-	float camSpeed = 0.8 + ((double)cameraTmer.getElapsedTime().asMilliseconds() / 600);
-	camSpeed = camSpeed > maxCamSpeed ? maxCamSpeed : camSpeed;
-	
-	float moveLine = p_1->getPosition().x + (p_1->currentMoveDir-1 * 64);
+	Vector2f moveCam(0, 0);
+	int delayAsMilisec = 400;
 
-	float h = (moveLine - screen.getCenter().x) * (p_1->currentMoveDir - 1); // if > 0 move cam
-
-	Vector2f changePos(0, 0);
-
-
-	if (h > 0)
+	if (cameraTmer.getElapsedTime().asMilliseconds() > delayAsMilisec)
 	{
-		changePos.x += camSpeed;
-		changePos.x *= p_1->currentMoveDir-1;
-		if ((screen.getCenter().x - SCRN_WIDTH / 2) + changePos.x < 0)
+		cameraTarget = p_1->getPosition();
+
+		if (cameraTarget.x - SCRN_WIDTH / 2 < 0)
 		{
-			changePos.x = 0;
+			cameraTarget.x = SCRN_WIDTH / 2;
 		}
-	}
-	else if (screen.getCenter().x - (SCRN_WIDTH /2) > p_1->getPosition().x)
-	{
-		changePos.x -= camSpeed;
-	}
-	
-	float v = p_1->getPosition().y - screen.getCenter().y; // przesuniêcie osi Y
-	if (v > 8)
-	{
-		changePos.y += camSpeed;
-	}
-	else if (v < -8)
-	{
-		changePos.y -= camSpeed;
+
+		moveCam.x = 0;
+		cameraTmer.restart();
 	}
 	else
 	{
-		changePos.y = v;
+		Vector2f dist(0, 0);
+		dist.x = cameraTarget.x - screen.getCenter().x;
+
+		float speed = dist.x == 0 ? 0 : (dist.x / (delayAsMilisec*2));
+
+		float deltaTime = 1000 / 60;
+
+		moveCam.x = speed * deltaTime;
 	}
 
 
-	if (changePos.x + changePos.y == 0)
+
+	// Old Version
+	/*
+	float xLLine = screen.getCenter().x - SCRN_WIDTH / 8;
+	float xRLine = screen.getCenter().x + SCRN_WIDTH / 8;
+
+	if (p_1->getPosition().x < xLLine)
 	{
-		cameraTmer.restart();
+		if (screen.getCenter().x - SCRN_WIDTH / 2 <= 0)
+		{
+			moveCam.x = -(screen.getCenter().x - SCRN_WIDTH / 2);
+		}
+		else
+		{
+			moveCam.x = -p_1->getSpeed() / 2;
+		}
+	}
+	else if (p_1->getPosition().x > xRLine)
+	{
+		moveCam.x = p_1->getSpeed() / 2;
+	}
+	*/
+
+
+	float v = p_1->getPosition().y - screen.getCenter().y; // przesuniêcie osi Y
+	if (v > 8)
+	{
+		moveCam.y += 4 / 2;
+	}
+	else if (v < -8)
+	{
+		moveCam.y -= 4 / 2;
+	}
+	else
+	{
+		moveCam.y = v;
 	}
 
-	//cout << changePos.x << endl;
-	screen.move(changePos);
+	screen.move(moveCam);
 }
 
 void game::endOfLevel()

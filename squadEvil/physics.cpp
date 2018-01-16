@@ -101,7 +101,8 @@ void physics::gravity(player *p)
 
 void physics::tileCollisions(player *p)
 {
-	
+	maxMoveSpeed = p->getSpeed();
+
 	int cDir = p->currentDirState - 1; //Look player::dir 
 	Vector2f position = p->getPosition();
 	static float currentMoveSpeed = 1;

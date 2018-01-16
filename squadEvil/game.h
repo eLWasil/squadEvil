@@ -28,6 +28,8 @@ private:
 	void draw();
 	void camera();
 	void camera2();
+	Vector2f cameraTarget;
+
 	player *p_1;
 
 	// Timers

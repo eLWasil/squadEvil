@@ -30,6 +30,7 @@ public:
 	virtual const float getExp() { return currentStats.EXP; };
 	virtual const int getMaxHp() { return currentStats.max_hp; };
 	virtual const int getMaxMana() { return currentStats.max_mana; };
+	const float getSpeed() { return currentStats.speed; };
 	
 	/* TEXTURE STATES */
 	enum states
@@ -85,7 +86,7 @@ protected:
 		int max_hp = 100, max_mana = 100;
 		float HP = max_hp, MANA = max_mana, EXP = 0;
 		int gold = 0, level = 1;
-		float regHp = 5, regMana = 5;
+		float regHp = 5, regMana = 5, speed = 7;
 	} currentStats;
 
 	Clock regTimer;
