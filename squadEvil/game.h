@@ -34,6 +34,7 @@ private:
 
 	// Timers
 	Clock cameraTmer;
+	Clock skillsTimer;
 	
 	void endOfLevel();
 

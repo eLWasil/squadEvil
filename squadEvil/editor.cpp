@@ -27,7 +27,7 @@ editor::editor(RenderWindow &window) : edWindow(window), currentTileType(1), int
 
 editor::editor(RenderWindow &window, string name) : level(name), edWindow(window), currentTileType(1), interfaceMode(0)
 {
-	SCRN_WIDTH = window.getSize().x;
+	SCRN_WIDTH = window.getSize().x; 
 	SCRN_HEIGHT = window.getSize().y;
 	screen.setSize(SCRN_WIDTH, SCRN_HEIGHT);
 	screen.setCenter(SCRN_WIDTH / 2, SCRN_HEIGHT / 2);

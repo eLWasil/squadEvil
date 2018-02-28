@@ -41,8 +41,13 @@ public:
 		Run, Slide, Throw, COUNT
 	} cTextureState;
 
-	/* SKILLS */
+	/* MECHANICS */
 	virtual skills *getSkill(int number) = 0;
+	void startJump() { isJumping = true; startingPositionY = avatar.getPosition().y; }; // Secured on game::mainLoop Key::Space
+	void endJump() { isJumping = false; };
+	const bool getJumpingVariable() { return isJumping; };
+	float startingPositionY;
+	bool isAttacking() { return isAttack; };
 
 	/* OPERATORS */
 	int operator++(int) { currentStats.gold++; return currentStats.gold; };
@@ -50,15 +55,7 @@ public:
 
 	/* FLAGS */
 	bool fEndOfLevel;
-	//int flagLadder();
-	//void flagLadderReset() { ladderTime.restart(); };
 
-	/* Jumping */
-	void startJump() { isJumping = true; startingPositionY = avatar.getPosition().y; }; // Secured on game::mainLoop Key::Space
-	void endJump() { isJumping = false; };
-	const bool getJumpingVariable() { return isJumping; }; 
-	float startingPositionY;
-	/* Its just helper variable, everything is in physics::gravity */
 
 	void death(Vector2f checkpoint) { currentStats.HP = currentStats.max_hp; setPosition(checkpoint); }
 	void hitEffect();
@@ -121,6 +118,7 @@ private:
 
 	//void jumping();
 	bool isJumping;
+	bool isAttack;
 	/************/
 
 };

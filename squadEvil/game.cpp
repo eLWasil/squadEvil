@@ -79,7 +79,19 @@ void game::mainLoop()
 				}
 				else if (handler.key.code == Keyboard::Z)
 				{
-					skillsArray.push_back(p_1->getSkill(1));
+					if (skillsTimer.getElapsedTime().asMilliseconds() > 150)
+					{
+						skills* ptr = p_1->getSkill(1);
+						if (ptr != nullptr)
+						{
+							skillsArray.push_back(ptr);
+							skillsTimer.restart();
+						}
+					}
+				}
+				else if (handler.key.code == Keyboard::Z)
+				{
+					
 				}
 
 			}

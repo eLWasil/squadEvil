@@ -5,7 +5,7 @@
 
 #define TILESIZE 64
 
-player::player() : isJumping(false), currentDirState(dir::STOP), currentMoveDir(dir::FORWARD), hud(*this)
+player::player() : isJumping(false), isAttack(false), currentDirState(dir::STOP), currentMoveDir(dir::FORWARD), hud(*this)
 {
 	fEndOfLevel = false;
 	String states[] = { "Attack", "Climb", "Dead", "Glide", "Idle", "Jump", "Jump_Attack", "Jump_Throw", "Run", "Slide", "Throw" };
@@ -85,6 +85,7 @@ void player::hudEffect(RenderWindow &window)
 
 }
 
+//ENUM HERE 
 void player::checkTexState()
 {
 	static int texCounter = 0;

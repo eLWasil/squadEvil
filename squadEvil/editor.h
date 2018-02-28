@@ -1,5 +1,5 @@
 #pragma once
-#include "map_of_level.h"
+#include "map_level.h"
 #include "player.h"
 #include <fstream>
 using namespace sf;
@@ -11,7 +11,7 @@ public:
 	editor(RenderWindow &window, string mapName);
 	~editor();
 
-	map_of_level level;
+	map_level level;
 	void save(string k = "");
 
 	string getMapName();
@@ -31,14 +31,8 @@ private:
 
 	vector <Sprite > interfaceSprites;
 	void loadInterace();
-	//Texture accessoryTex[14];
-
-	//Sprite interfaceTiles[34];
-	//Sprite allSprites[34];
 	int mouseDelta;
 
-	//Sprite accessoriesTiles[10];
-	//Sprite accessoriesTilesInterface[10];
 	float widthInterfaceTile, dist;
 	RectangleShape interfaceShapes[20];
 	int interfaceMode;

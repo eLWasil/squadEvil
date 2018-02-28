@@ -15,21 +15,22 @@ Mage::~Mage()
 skills* Mage::getSkill(const int number = 0)
 {
 	Vector2f pos = this->getCenter();
-	skills* temp = (new fireball(pos, this->currentMoveDir - 1));
+	skills* temp = nullptr;
 	if (number < 3)
 	{
 		temp = (new fireball(pos, this->currentMoveDir - 1));
 		int cost = temp->getCost();
-		if (cost > getMANA())
+		if (cost > getMANA() || getMANA() < 0)
 		{
-			return temp;
+			return nullptr;
 		}
 		else
 		{
 			this->currentStats.MANA -= cost;
+			return temp;
 		}
 	}
-	return temp;
+	//return temp;
 }
 
 void Mage::regen()

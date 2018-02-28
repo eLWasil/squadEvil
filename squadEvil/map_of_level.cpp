@@ -245,7 +245,7 @@ void map_of_level::setTile(Sprite current, int type)
 {
 	int row = current.getPosition().y / 64;
 	int col = current.getPosition().x / 64;
-	resizeMap(row, col);
+	resizeMap(row, col); 
 
 
 	if (type > 0)
