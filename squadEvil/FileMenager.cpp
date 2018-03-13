@@ -1,6 +1,6 @@
 #include "FileMenager.h"
-
-
+#include <direct.h>
+#define GetCurrentDir _getcwd
 
 FileMenager::FileMenager()
 {
@@ -70,4 +70,14 @@ string FileMenager::nextFile(const char* dirname, string c_name)
 	{
 		printf("Katalog %s nie ma plikow\n", dirname);
 	}
+}
+
+string FileMenager::getCurrentPath()
+{
+	char cCurrentPath[FILENAME_MAX];
+
+	GetCurrentDir(cCurrentPath, sizeof(cCurrentPath));
+
+	string path(cCurrentPath);
+	return path;
 }

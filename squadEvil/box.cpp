@@ -6,7 +6,7 @@ box::box()
 {
 	sprite.setPosition(0, 0);
 
-	texture.loadFromFile("data/Graphics/Others/Object/Crate.png");
+	texture.loadFromFile("data/Graphics/Others/Objects/box.png");
 	sprite.setTexture(texture);
 
 }

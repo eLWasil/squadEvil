@@ -5,7 +5,7 @@
 plate::plate()
 {
 	sprite.setPosition(0, 0);
-	texture.loadFromFile("data/Graphics/Others/Object/Plate.png");
+	texture.loadFromFile("data/Graphics/Others/Objects/Plate.png");
 	sprite.setTexture(texture);
 }
 

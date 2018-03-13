@@ -14,7 +14,7 @@ coin::coin()
 {
 	sprite.setPosition(0, 0);
 	hightOfFly = 2;
-	texture.loadFromFile("data/Graphics/Others/Object/coin.png");
+	texture.loadFromFile("data/Graphics/Others/Objects/coin.png");
 	sprite.setTexture(texture);
 }
 

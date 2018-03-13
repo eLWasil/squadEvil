@@ -8,7 +8,7 @@ campFire::campFire()
 
 	for (size_t i = 0; i < 5; i++)
 	{
-		texs[i].loadFromFile("data/Graphics/Others/Object/CampFire.png", IntRect(64 * i, 0, 64, 64));
+		texs[i].loadFromFile("data/Graphics/Others/Objects/CampFire.png", IntRect(64 * i, 0, 64, 64));
 	}
 	texture = texs[0];
 	sprite.setTexture(texture);

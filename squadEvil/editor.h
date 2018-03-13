@@ -7,38 +7,33 @@ using namespace sf;
 class editor
 {
 public:
-	editor(RenderWindow &window);
-	editor(RenderWindow &window, string mapName);
+	editor(RenderWindow &window, string filename = "");
 	~editor();
 
-	map_level level;
-	void save(string k = "");
+	void saveMap(string title = "");
+	void mainLoop();
 
 	string getMapName();
-
-	void mainLoop();
 private:
 	int SCRN_WIDTH,
 		SCRN_HEIGHT;
 
-	int currentTileType;
-
 	RenderWindow &edWindow;
 	View screen;
+	map_level level;
 
-	Sprite workingSprite;
-	void setWorkingSprite(int newDelta);
-
+	Sprite workingSprite, background;
 	vector <Sprite > interfaceSprites;
 	void loadInterace();
 	int mouseDelta;
 
-	float widthInterfaceTile, dist;
-	RectangleShape interfaceShapes[20];
 	int interfaceMode;
 	Texture coinsModeTex[4];
 
 	void draw();
+	void drawTiles();
+	void drawObjects();
+	void drawEnemies();
 	void drawInterface();
 
 };

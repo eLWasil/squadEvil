@@ -7,8 +7,5 @@ public:
 	bush();
 	~bush();
 
-private:
-	sf::Texture textures[4];
-	const int numberOfTex;
 };
 

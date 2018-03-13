@@ -6,7 +6,7 @@
 int main()
 {
 	srand((unsigned)time(NULL));
-	/*
+
 	options defaultO;
 	RenderWindow window;
 
@@ -22,11 +22,6 @@ int main()
 	window.setFramerateLimit(60);
 
 	menu sayHello(window, defaultO);
-	*/
-	//editor EdytorMap;
+	
 
-	map_level mapHandle;
-	mapHandle.readMap("Normal_1.level");
-
-	system("pause");
 }

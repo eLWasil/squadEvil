@@ -2,14 +2,12 @@
 #include "accessories.h"
 #include "SFML\Graphics\Sprite.hpp"
 
-const int tileCount = 19;
-//const int countOfAllSprites = 34;
 const int accessoriesTileMove = 16;
 const int areaTileMove = 64;
 bool editorVisable;
 bool reverseTile = false, darkMode = false;
 
-editor::editor(RenderWindow &window) : edWindow(window), currentTileType(1), interfaceMode(0)
+editor::editor(RenderWindow &window, string filename) : edWindow(window), interfaceMode(0), mouseDelta(0)
 {
 	SCRN_WIDTH = window.getSize().x;
 	SCRN_HEIGHT = window.getSize().y;
@@ -18,28 +16,14 @@ editor::editor(RenderWindow &window) : edWindow(window), currentTileType(1), int
 
 
 	loadInterace();
-	mouseDelta = 0;
-	setWorkingSprite(mouseDelta);
+	workingSprite = interfaceSprites[0];
 
+	if (filename.size() > 0)
+	{
+		level.readMap(filename);
+	}
 
-	mainLoop();
 }
-
-editor::editor(RenderWindow &window, string name) : level(name), edWindow(window), currentTileType(1), interfaceMode(0)
-{
-	SCRN_WIDTH = window.getSize().x; 
-	SCRN_HEIGHT = window.getSize().y;
-	screen.setSize(SCRN_WIDTH, SCRN_HEIGHT);
-	screen.setCenter(SCRN_WIDTH / 2, SCRN_HEIGHT / 2);
-
-	loadInterace();
-	mouseDelta = 0;
-	setWorkingSprite(mouseDelta);
-
-	mainLoop();
-}
-
-
 
 editor::~editor()
 {
@@ -48,6 +32,7 @@ editor::~editor()
 
 void editor::mainLoop() 
 {
+	int firstUsableObjectNumber = TexNames::EMPTY;
 	edWindow.setMouseCursorVisible(true);
 	editorVisable = true;
 
@@ -73,22 +58,22 @@ void editor::mainLoop()
 			if (handler.type == Event::MouseWheelMoved)
 			{
 				mouseDelta += handler.mouseWheel.delta;
-				setWorkingSprite(mouseDelta);
+				if (mouseDelta < 0)
+				{
+					mouseDelta = interfaceSprites.size() - 1;
+				}
+				else if (mouseDelta >= interfaceSprites.size())
+				{
+					mouseDelta = 0;
+				}
+
+				Vector2f pos = workingSprite.getPosition();
+				workingSprite = interfaceSprites[mouseDelta];
+				workingSprite.setPosition(pos);
 			}
 			else if (Mouse::isButtonPressed(Mouse::Left))
 			{
-				//const int countOfTiles = map_level::tileTypes::TILECOUNT;
-				const int countOfAccessories = level.getObjectTypesCount();
-
-				if (mouseDelta >= 0 && mouseDelta <= level.tileTextures.size() - 1)
-				{
-					//cout << "editor.cpp(116), mouseDelta: " << mouseDelta << endl;
-					level.setTile(workingSprite, mouseDelta);
-				}
-				else
-				{
-					level.setObject(workingSprite, mouseDelta - 19);
-				}
+				level.setObject(workingSprite, mouseDelta + firstUsableObjectNumber);
 			}
 
 			if (handler.type == Event::KeyPressed)
@@ -127,21 +112,17 @@ void editor::mainLoop()
 			}
 		}
 		Vector2f mousePos(Mouse::getPosition(edWindow));
-		//mousePos.x += screen.getCenter().x - (SCRN_WIDTH / 2);
-		//mousePos.y += screen.getCenter().y - (SCRN_HEIGHT / 2);
-		//cout << "MouseDelta: " << mouseDelta << endl;
 
-		if (mouseDelta < level.tileTextures.size())
+		int selectedObjectType = mouseDelta + firstUsableObjectNumber;
+
+		if (selectedObjectType >= TexNames::TILESTOTHEEND)
 		{
 			mousePos.x = int((mousePos.x + screen.getCenter().x - (SCRN_WIDTH / 2)) / 64) * 64;
 			mousePos.y = int((mousePos.y + screen.getCenter().y - (SCRN_HEIGHT / 2)) / 64) * 64;
 		}
-		else if (mouseDelta == interfaceSprites.size() - 1)
+		else if (selectedObjectType == TexNames::EMPTY)
 		{
-			if (level.getNearestAccessory(mousePos))
-			{
-				mousePos = level.getNearestAccessory(mousePos)->getSprite().getPosition();
-			}
+			mousePos = level.getNearestObjectPosition(mousePos);
 		}
 		else
 		{
@@ -150,9 +131,7 @@ void editor::mainLoop()
 		}
 
 		workingSprite.setPosition(mousePos);
-
 		edWindow.clear(Color(149, 192, 247));
-
 		
 
 		edWindow.setView(screen);		
@@ -164,71 +143,109 @@ void editor::mainLoop()
 
 }
 
-void editor::setWorkingSprite(int newDelta)
-{
-	int deltaMax = interfaceSprites.size();
-	if (newDelta < 0)
-	{
-		newDelta = 0;
-	}
-	else if (newDelta >= deltaMax)
-	{
-		newDelta = deltaMax - 1;
-	}
-
-	workingSprite = interfaceSprites[newDelta];
-
-	mouseDelta = newDelta;
-}
-
 void editor::loadInterace()
 {
-	for (int i = 0; i < level.tileTextures.size(); i++)
+	int firstUsableObjectNumber = TexNames::EMPTY;
+
+	interfaceSprites.resize(TexNames::TILESTOTHEEND + level.numOfTileTypes);
+	for (int i = 0; i < interfaceSprites.size(); i++)
 	{
-		Sprite sprite;
-		sprite.setTexture(level.tileTextures[i]);
-		interfaceSprites.push_back(sprite);
+		Vector2f newpos(SCRN_WIDTH - 64 - 32, i * 64 + 128);
+		interfaceSprites[i].setPosition(newpos);
+		interfaceSprites[i].setTexture(level.getTexture(i + firstUsableObjectNumber));
 	}
 
-	for (int i = 0; i < level.allAccessoriesObjects.size(); i++)
-	{
-		interfaceSprites.push_back(level.allAccessoriesObjects[i]->getSprite());
-	}
-
-	interfaceSprites.push_back(interfaceSprites[0]);
+	background.setTexture(level.getTexture(0));
 }
 
 void editor::draw()
 {
 	Vector2f screenPosition(screen.getCenter().x - (SCRN_WIDTH / 2), screen.getCenter().y - (SCRN_HEIGHT / 2));
-	level.backgroundSprite.setPosition(screenPosition);
-	edWindow.draw(level.backgroundSprite);
+	background.setPosition(screenPosition);
+	
+	edWindow.draw(background);
 
-	for (int i = 0; i < level.getAreaSpritesCount(); i++)
-	{
-		if (level.getAreaSprite(i).getPosition().x > screenPosition.x - 64)
-		{
-			if (level.getAreaSprite(i).getPosition().x < screenPosition.x + SCRN_WIDTH + 64)
-			{
-				edWindow.draw(level.getAreaSprite(i));
-			}
-		}
-	}
-
-	for (int i = 0; i < level.getObjectsCount(); i++)
-	{
-		if (level.getObjectAt(i)->getSprite().getPosition().x >(screen.getCenter().x - (SCRN_WIDTH / 2)) - 64)
-		{
-			if (level.getObjectAt(i)->getSprite().getPosition().x < (screen.getCenter().x + (SCRN_WIDTH / 2)) + 64)
-			{
-				edWindow.draw(level.getObjectAt(i)->getSprite());
-			}
-		}
-	}
-	drawInterface();
-
-
+	drawTiles();
+	drawObjects();
+	drawEnemies();
+	
 	edWindow.draw(workingSprite);
+
+	drawInterface();
+}
+
+void editor::drawTiles()
+{
+	int idx = 0;
+	Sprite *temp = nullptr;
+	Vector2f drawingArea(screen.getCenter().x - (SCRN_WIDTH / 2) - 128, screen.getCenter().x + (SCRN_WIDTH / 2) + 128); // 128 mean 2x TILESIZE, safe border
+	while (true)
+	{
+		temp = level.getTileAt(idx++);
+
+		if (!temp) break;
+
+		if (temp->getPosition().x > drawingArea.x);
+		{
+			if (temp->getPosition().x < drawingArea.y)
+			{
+				edWindow.draw(*temp);
+			}
+			else
+			{
+				break;
+			}
+		}
+	}
+}
+void editor::drawObjects()
+{
+	int idx = 0;
+	accessories *temp = nullptr;
+	Vector2f drawingArea(screen.getCenter().x - (SCRN_WIDTH / 2) - 128, screen.getCenter().x + (SCRN_WIDTH / 2) + 128); // 128 mean 2x TILESIZE, safe border
+
+	while (true)
+	{
+		temp = level.getObjectAt(idx++);
+
+		if (!temp) break;
+
+		if (temp->getSprite().getPosition().x > drawingArea.x);
+		{
+			if (temp->getSprite().getPosition().x < drawingArea.y)
+			{
+				edWindow.draw(temp->getSprite());
+			}
+			else
+			{
+				break;
+			}
+		}
+	}
+}
+void editor::drawEnemies()
+{
+	int idx = 0;
+	enemies *temp = nullptr;
+	Vector2f drawingArea(screen.getCenter().x - (SCRN_WIDTH / 2) - 128, screen.getCenter().x + (SCRN_WIDTH / 2) + 128); // 128 mean 2x TILESIZE, safe border
+	while (true)
+	{
+		temp = level.getEnemieAt(idx++);
+
+		if (!temp) break;
+
+		if (temp->getSprite().getPosition().x > drawingArea.x);
+		{
+			if (temp->getSprite().getPosition().x < drawingArea.y)
+			{
+				edWindow.draw(temp->getSprite());
+			}
+			else
+			{
+				break;
+			}
+		}
+	}
 }
 
 void editor::drawInterface()
@@ -237,7 +254,7 @@ void editor::drawInterface()
 	positionOfFirst.x = screen.getCenter().x + (SCRN_WIDTH / 2) - 64;
 	positionOfFirst.y = screen.getCenter().y + (mouseDelta * 64);
 
-	for (size_t i = 1; i < interfaceSprites.size(); i++)
+	for (size_t i = 0; i < interfaceSprites.size(); i++)
 	{
 		interfaceSprites[i].setPosition(positionOfFirst.x - (i == mouseDelta ? 16 : 0), positionOfFirst.y - (i * 64));
 		edWindow.draw(interfaceSprites[i]);
@@ -246,14 +263,10 @@ void editor::drawInterface()
 
 string editor::getMapName()
 {
-	return level.getNameOfLevel();
+	return level.getMapName();
 }
 
-void editor::save(string k)
+void editor::saveMap(string title)
 {
-	if (k.size() > 0)
-	{
-		level.setName(k);
-	}
-	level.saveMap();
+	level.saveMap(title);
 }

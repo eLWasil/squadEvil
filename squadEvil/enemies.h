@@ -17,6 +17,7 @@ public:
 	bool isDead;
 
 	virtual int operator-=(int demage);
+	operator Sprite() const { return sprite; }
 protected:
 	struct enemieStats
 	{

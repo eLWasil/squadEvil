@@ -10,6 +10,8 @@ menu::menu(RenderWindow &window, options &option) : mainWindow(window), settings
 
 	backgroundTex.loadFromFile("data/Graphics/interfaceBackground2.png");
 	background.setTexture(backgroundTex);
+	eBackgroundTex.loadFromFile("data/Graphics/ingameMenuBackground.png");
+	eBackground.setTexture(eBackgroundTex);
 
 
 	String texts[4] = { "New Game", "Editor", "Options", "Quit" };
@@ -142,25 +144,25 @@ void menu::editorSettings()
 		menuOptions[i].setPosition(mainWindow.getSize().x - 550, (mainWindow.getSize().y - 340) + (i * 75));
 	}
 	
+	editor *editorHandle = nullptr;
 	while (true)
 	{
 		int currentMenuChoice = choiceLoop(menuOptions, 3, background);
 		if (currentMenuChoice == 0)
 		{
-			editor *newMap = new editor(mainWindow);
-			eBackgroundTex.loadFromFile("data/Graphics/editorMenu.png");
-			eBackground.setTexture(eBackgroundTex);
-			editorMenu(newMap);
+			editorHandle = new editor(mainWindow);
+			editorHandle->mainLoop();
+
+			editorMenu(editorHandle);
 		}
 		else if (currentMenuChoice == 1)
 		{
-			string map = mapChoice();
-			if (map.size() > 0)
+			string mapName = mapChoice();
+			if (mapName.size() > 0)
 			{
-				editor *newMap = new editor(mainWindow, map);
-				eBackgroundTex.loadFromFile("data/Graphics/editorMenu.png");
-				eBackground.setTexture(eBackgroundTex);
-				editorMenu(newMap);
+				editorHandle = new editor(mainWindow, mapName);
+				editorHandle->mainLoop();
+				editorMenu(editorHandle);
 			}
 		}
 		else if (currentMenuChoice == 2)
@@ -172,11 +174,19 @@ void menu::editorSettings()
 			break;
 		}
 	}
+	if (editorHandle != nullptr)
+	{
+		//delete editorHandle;
+	}
 }
 
 string menu::mapChoice()
 {
 	vector<string> files = filesManager.list("data/Levels/");
+	if (files.size() == 0)
+	{
+		return "";
+	}
 
 	Sprite curtain_1;
 	Texture curtain_1Tex;
@@ -295,33 +305,21 @@ void menu::editorMenu(editor *map)
 		else if (choice == 1)
 		{
 			delete map;
-			editorSettings();
+			map = new editor(mainWindow);
+			map->mainLoop();
 			break;
 		}
 		else if (choice == 2)
 		{
 			string mapName = setMapName(map->getMapName());
-			if (mapName.size() > 0)
-			{
-				if (mapName == "default")
-				{
-					map->save();
-				}
-				else
-				{
-					map->save(mapName);
-				}
-			}
+			map->saveMap(mapName);
 		}
 		else if (choice == 3)
 		{
-			delete map;
 			break;
 		}
 		else if (choice == menuOptionsSize)
 		{
-			delete map;
-			//map->mainLoop();
 			break;
 		}
 	}
@@ -378,12 +376,12 @@ string menu::setMapName(string prevName)
 					}
 					else
 					{
-						
+						return prevName;
 					}
 				}
 				else if (handler.key.code == Keyboard::Escape)
 				{
-					return "";
+					return prevName;
 				}
 			}
 		}

@@ -4,7 +4,6 @@
 #include "campFire.h"
 #include "box.h"
 #include "ladder.h"
-#include "warrior.h"
 #include "chicken.h"
 #include "bush.h"
 #include "plate.h"
@@ -206,10 +205,6 @@ accessories* map_of_level::CreateObjectByTypeNumber(int type)
 		break;
 	case map_of_level::CHICKEN:
 		temp = new chicken();
-		temp->setObjectTypeNumber(type);
-		break;
-	case map_of_level::WARRIOR:
-		temp = new warrior();
 		temp->setObjectTypeNumber(type);
 		break;
 	case map_of_level::BUSH:

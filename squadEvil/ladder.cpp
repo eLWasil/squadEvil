@@ -7,7 +7,7 @@ ladder::ladder()
 {
 	sprite.setPosition(0, 0);
 
-	texture.loadFromFile("data/Graphics/Others/Object/ladder.png");
+	texture.loadFromFile("data/Graphics/Others/Objects/ladder.png");
 	sprite.setTexture(texture);
 }
 
