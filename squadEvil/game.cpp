@@ -5,17 +5,21 @@
 game::game(RenderWindow &window, options *sett) : window(window), settings(*sett)
 {
 	p_1 = new Mage("Lukasz");
-	currentMapName = "Normal_1";
-	level = new map_of_level(currentMapName);
+
 	SCRN_WIDTH = window.getSize().x;
 	SCRN_HEIGHT = window.getSize().y;	
 	screen.setSize(SCRN_WIDTH, SCRN_HEIGHT);
 	screen.setCenter(SCRN_WIDTH / 2, SCRN_HEIGHT / 2);
 
+	currentMapName = "mymap";
+	level = new map_level(currentMapName);
 	Physics.setLevel(level);
 
 	cameraTarget = screen.getCenter();
 	
+	background.setTexture(level->getTexture(0));
+	background.setPosition(0, 0);
+
 	mainLoop();
 }
 
@@ -122,133 +126,37 @@ void game::mainLoop()
 
 }
 
+bool game::isVisible(Sprite *holder)
+{
+	if (holder->getPosition().x > screen.getCenter().x - (SCRN_WIDTH / 2) - 128)
+	{
+		if (holder->getPosition().x < screen.getCenter().x + (SCRN_WIDTH / 2) + 128)
+		{
+			if (holder->getPosition().y > screen.getCenter().y - (SCRN_HEIGHT / 2) - 128)
+			{
+				if (holder->getPosition().y < screen.getCenter().y + (SCRN_HEIGHT / 2) + 128)
+				{
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
 void game::draw()
 {
-
 	Vector2f screenPosition(screen.getCenter().x - (SCRN_WIDTH / 2),
-	screen.getCenter().y - (SCRN_HEIGHT / 2));
-	level->backgroundSprite.setPosition(screenPosition);
-	window.draw(level->backgroundSprite);
+							screen.getCenter().y - (SCRN_HEIGHT / 2));
 
-	/* MAP /
-	for (int i = 0; i < level->tileSprites.size(); i++)
-	{
-		if (level->tileSprites[i].getPosition().x > screenPosition.x - 128)
-		{
-			if (level->tileSprites[i].getPosition().x < screenPosition.x + SCRN_WIDTH + 128)
-			{
-				window.draw(level->tileSprites[i]);
-			}
-		}
-	}*/
-	for (int i = 0; i < level->getAreaSpritesCount(); i++)
-	{
-		window.draw(level->getAreaSprite(i));
-	}
-
-	/* OBJECTS */
-	vector<Sprite *> frontObjects;
-	vector<enemies* > enemieObjects;
-	for (int i = 0; i < level->getObjectsCount(); i++)
-	{
-		if (level->getObjectAt(i)->getSprite().getPosition().x > (screen.getCenter().x - (SCRN_WIDTH / 2)) - 128)
-		{
-			if (level->getObjectAt(i)->getSprite().getPosition().x < (screen.getCenter().x + (SCRN_WIDTH / 2)) + 256)
-			{
-				level->getObjectAt(i)->eventP(*p_1);
-
-				if (level->getObjectAt(i)->layer == accessories::Layer::FRONT)
-				{
-					/* ENEMIE CHECKER */
-					enemies *temp = dynamic_cast<enemies*>(level->getObjectAt(i));
-					if (temp)
-					{
-						if (!temp->isDead)
-						{
-							enemieObjects.push_back(temp);
-						}
-						else
-						{
-							level->deleteObjectAt(i);
-						}
-					}
-					else
-					{
-						frontObjects.push_back(&level->getObjectAt(i)->getSprite());
-					}
-				}
-				else
-				{
-					window.draw(level->getObjectAt(i)->getSprite());
-				}
+	background.setPosition(screenPosition);
+	window.draw(background);
 
 
-				if (level->getObjectAt(i)->update())
-				{
-
-				}
-			}
-			else
-			{
-				break;
-			}
-		}
-	}
-
-	/* SKILLS 
-	for (size_t i = 0; i < skillsArray.size(); i++)
-	{
-		if (skillsArray[i]->toRemove)
-		{
-			delete skillsArray[i];
-			skillsArray.erase(skillsArray.begin() + i);
-		}
-		else
-		{
-			window.draw(skillsArray[i]->getSprite());
-			for (size_t j = 0; j < enemieObjects.size(); j++)
-			{
-				window.draw(enemieObjects[i]->sprite);
-				if (enemieObjects[j]->getSprite().getGlobalBounds().intersects(skillsArray[i]->getSprite().getGlobalBounds()))
-				{
-					enemieObjects[j]->hit(skillsArray[i]);
-					skillsArray[i]->toRemove = true;
-				}
-			}
-		}
-	}
-	*/
-	/* ENEMIES AND SKILLS */
-		//SKILLS
-	for (size_t i = 0; i < skillsArray.size(); i++)
-	{
-		if (skillsArray[i]->toRemove)
-		{
-			delete skillsArray[i];
-			skillsArray.erase(skillsArray.begin() + i);
-		}
-		else
-		{
-			window.draw(skillsArray[i]->getSprite());
-		}
-	}
-		//ENEMIES
-	for (size_t j = 0; j < enemieObjects.size(); j++)
-	{
-		window.draw(enemieObjects[j]->getSprite());
-		for (size_t i = 0; i < skillsArray.size(); i++)
-		{
-			if (enemieObjects[j]->getSprite().getGlobalBounds().intersects(skillsArray[i]->getSprite().getGlobalBounds()))
-			{
-				*enemieObjects[j] -= (int)skillsArray[i]->getDemage();
-				skillsArray[i]->toRemove = true;
-			}
-			if (enemieObjects[j]->getAttackState())
-			{
-				window.draw(enemieObjects[j]->hpBar);
-			}
-		}
-	}
+	drawTiles();
+	drawObjects();
+	drawEnemies();
+	drawSkills();
 
 	/* PLAYER */
 	if (p_1->getHp() > 0)
@@ -260,13 +168,101 @@ void game::draw()
 	{
 		p_1->death(Vector2f(0, 0));
 	}
+}
 
-	/* OTHERS */
-	for (size_t i = 0; i < frontObjects.size(); i++)
+void game::drawTiles()
+{
+	int idx = 0;
+	Sprite *tileHolder;
+	
+	do
 	{
-		window.draw(*frontObjects[i]);
+		tileHolder = level->getTileAt(idx);
+		if (!tileHolder)
+		{
+			break;
+		}
+
+		if (isVisible(tileHolder))
+		{
+			window.draw(*tileHolder);
+		}
+		else if (tileHolder->getPosition().x > screen.getCenter().x - (SCRN_WIDTH / 2) + 128)
+		{
+			break;
+		}
+
+	} while (++idx);
+}
+
+void game::drawObjects()
+{
+	int idx = 0;
+	accessories *objectHolder;
+
+	do
+	{
+		objectHolder = level->getObjectAt(idx);
+		if (!objectHolder)
+		{
+			break;
+		}
+
+		if (isVisible(&objectHolder->getSprite()))
+		{
+			window.draw(objectHolder->getSprite());
+			objectHolder->update();
+			objectHolder->eventP(*p_1);
+		}
+		else if (objectHolder->getSprite().getPosition().x > screen.getCenter().x - (SCRN_WIDTH / 2) + 128)
+		{
+			break;
+		}
+
+	} while (++idx);
+}
+
+void game::drawEnemies()
+{
+	int idx = 0;
+	enemies *enemieHolder;
+
+	do
+	{
+		enemieHolder = level->getEnemieAt(idx);
+		if (!enemieHolder)
+		{
+			break;
+		}
+
+		if (isVisible(&enemieHolder->getSprite()))
+		{
+			window.draw(enemieHolder->getSprite());
+			enemieHolder->update();
+			enemieHolder->eventP(*p_1);
+		}
+		else if (enemieHolder->getSprite().getPosition().x > screen.getCenter().x - (SCRN_WIDTH / 2) + 128)
+		{
+			break;
+		}
+
+	} while (++idx);
+}
+
+void game::drawSkills()
+{
+	for (size_t i = 0; i < skillsArray.size(); i++)
+	{
+		if (skillsArray[i]->toRemove)
+		{
+			delete skillsArray[i];
+			skillsArray.erase(skillsArray.begin() + i);
+		}
+		else
+		{
+			window.draw(skillsArray[i]->getSprite());
+		}
 	}
-	p_1->hudEffect(window);
 }
 
 void game::camera2()
@@ -447,7 +443,7 @@ void game::endOfLevel()
 				if (timer.getElapsedTime().asMilliseconds() >= 4000)
 				{
 					delete level;
-					level = new map_of_level(nameLevel);
+					level = new map_level(nameLevel);
 
 					currentMapName = nameLevel;
 					break;

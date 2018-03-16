@@ -22,7 +22,7 @@ void chest::eventP(player &Player)
 {
 	if (!isOpen)
 	{
-		if (sprite.getGlobalBounds().intersects(Player.getConstSprite().getGlobalBounds()))
+		if (sprite.getGlobalBounds().intersects(Player.getSprite().getGlobalBounds()))
 		{
 			int randGold = rand() % 10;
 			randGold += 5;

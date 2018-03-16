@@ -18,9 +18,7 @@
 #include "bush.h"
 #include "plate.h"
 
-#define TILESIZE 64
-
-map_level::map_level() : numOfTileTypes(18)
+map_level::map_level() : numOfTileTypes(18), TILESIZE(64)
 {
 	loadTextures();
 	
@@ -34,7 +32,7 @@ map_level::map_level() : numOfTileTypes(18)
 	buildMapBody();
 }
 
-map_level::map_level(string fileMapName) : numOfTileTypes(18)
+map_level::map_level(string fileMapName) : numOfTileTypes(18), TILESIZE(64)
 {
 	loadTextures();
 	readMap(fileMapName);
@@ -314,6 +312,26 @@ enemies* map_level::getEnemieAt(int idx)
 		return enemiesVector[idx];
 	}
 	return nullptr;
+}
+
+int map_level::getTileType(Vector2f pos)
+{
+	if (pos.x > 0)
+	{
+		pos.x /= TILESIZE;
+	}
+
+	if (pos.y > 0)
+	{
+		pos.y /= TILESIZE;
+	}
+
+	return tilesTypeMap[pos.x][pos.y];
+}
+
+const mapFileHeader map_level::getMapHeader()
+{
+	return mapHeader;
 }
 
 void map_level::setObject(Sprite sprite, int type)

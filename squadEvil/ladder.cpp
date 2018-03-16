@@ -37,7 +37,7 @@ void ladder::eventP(player &Player)
 	*/
 
 	//cout << "\nLadder in.";
-	if (this->sprite.getGlobalBounds().intersects(Player.getConstSprite().getGlobalBounds()))
+	if (this->sprite.getGlobalBounds().intersects(Player.getSprite().getGlobalBounds()))
 	{
 		//Player.sigLadderReset();
 		//cout << "\nLadder reset.";

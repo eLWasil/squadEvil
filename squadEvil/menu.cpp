@@ -14,16 +14,6 @@ menu::menu(RenderWindow &window, options &option) : mainWindow(window), settings
 	eBackground.setTexture(eBackgroundTex);
 
 
-	String texts[4] = { "New Game", "Editor", "Options", "Quit" };
-
-	for (int i = 0; i < 4; i++)
-	{
-		menuOptions[i].setFont(settings.font_1);
-		menuOptions[i].setString(texts[i]);
-		menuOptions[i].setCharacterSize(60);
-		menuOptions[i].setPosition(mainWindow.getSize().x - 550, (mainWindow.getSize().y - 340) + (i * 75));
-	}
-	
 	mainLoop();
 }
 
@@ -34,9 +24,14 @@ menu::~menu()
 
 void menu::mainLoop()
 {
+	vector <string> mainMenuOptions;
+	mainMenuOptions.push_back("New Game");
+	mainMenuOptions.push_back("Editor");
+	mainMenuOptions.push_back("Quit");
+
 	while (true)
 	{
-		int currentMenuChoice = choiceLoop(menuOptions, 4, background);
+		int currentMenuChoice = choiceLoop(mainMenuOptions);
 		if (currentMenuChoice == 0)
 		{
 			gameSettings();
@@ -62,92 +57,35 @@ void menu::mainLoop()
 	}
 }
 
-void menu::draw()
+void menu::gameSettings()
 {
-	mainWindow.draw(background);
-
-	for (int i = 0; i < 4; i++)
-	{
-		menuOptions[i].setColor(Color(255, 255, 255));
-		if (i == currentMenuChoice)
-		{
-			menuOptions[i].setColor(Color(85, 0, 0));
-		}
-		mainWindow.draw(menuOptions[i]);
-	}
-}
-
-int menu::choiceLoop(Text menuOptions[], int size, Sprite bg)
-{
-	int current = 0;
+	Text menuOptions[2];
+	vector <string> gameOptions = { "Start demo", "Back" };
 
 	while (true)
 	{
-
-		Event handler;
-		if (mainWindow.pollEvent(handler))
+		int currentMenuChoice = choiceLoop(gameOptions);
+		if (currentMenuChoice == 0)
 		{
-			if (handler.type == Event::KeyPressed)
-			{
-				if (handler.key.code == Keyboard::Escape)
-				{
-					return size;
-				}
-				else if (handler.key.code == Keyboard::Up)
-				{
-					current -= 1;
-					if (current < 0)
-					{
-						current = size - 1;
-					}
-				}
-				else if (handler.key.code == Keyboard::Down)
-				{
-					current = (++current) % size;
-				}
-				else if (handler.key.code == Keyboard::Return)
-				{
-					return current;
-				}
-			}
+			game *p = new game(mainWindow, &settings);
+			delete p;
 		}
-
-		mainWindow.setView(screen);
-
-		mainWindow.draw(bg);
-
-		for (int i = 0; i < size; i++)
+		else if (currentMenuChoice == 2)
 		{
-			menuOptions[i].setColor(Color(255, 255, 255));
-			if (i == current)
-			{
-				menuOptions[i].setColor(Color(85, 0, 0));
-			}
-			mainWindow.draw(menuOptions[i]);
+			break;
 		}
-
-		mainWindow.display();
 	}
 }
 
 void menu::editorSettings()
 {
-	Text menuOptions[4];
-	int menuOptionsSize = 4;
-	String texts[4] = { "New Map", "Load Map", "Back" };
+	vector <string> menuOptions = { "New map", "Load Map", "Back" };
 
-	for (int i = 0; i < 3; i++)
-	{
-		menuOptions[i].setFont(settings.font_1);
-		menuOptions[i].setString(texts[i]);
-		menuOptions[i].setCharacterSize(60);
-		menuOptions[i].setPosition(mainWindow.getSize().x - 550, (mainWindow.getSize().y - 340) + (i * 75));
-	}
-	
+
 	editor *editorHandle = nullptr;
 	while (true)
 	{
-		int currentMenuChoice = choiceLoop(menuOptions, 3, background);
+		int currentMenuChoice = choiceLoop(menuOptions);
 		if (currentMenuChoice == 0)
 		{
 			editorHandle = new editor(mainWindow);
@@ -178,6 +116,136 @@ void menu::editorSettings()
 	{
 		//delete editorHandle;
 	}
+}
+
+void menu::editorMenu(editor *map)
+{
+	mainWindow.draw(eBackground);
+	vector <string> editorOptions = { "Resume", "Reset", "Save", "Quit" };
+
+	while (true)
+	{
+		int choice = choiceLoop(editorOptions, true);
+		if (choice == 0)
+		{
+			map->mainLoop();
+		}
+		else if (choice == 1)
+		{
+			delete map;
+			map = new editor(mainWindow);
+			map->mainLoop();
+			break;
+		}
+		else if (choice == 2)
+		{
+			string mapName = setMapName(map->getMapName());
+			map->saveMap(mapName);
+		}
+		else if (choice == 3)
+		{
+			break;
+		}
+		else
+		{
+			break;
+		}
+	}
+}
+
+void menu::draw()
+{
+	mainWindow.draw(background);
+
+	for (int i = 0; i < 4; i++)
+	{
+		menuOptions[i].setColor(Color(255, 255, 255));
+		if (i == currentMenuChoice)
+		{
+			menuOptions[i].setColor(Color(85, 0, 0));
+		}
+		mainWindow.draw(menuOptions[i]);
+	}
+}
+
+int menu::choiceLoop(vector <string> options, bool ingame)
+{
+	Text *menuOptions = new Text[options.size()];
+
+	for (int i = 0; i < options.size(); i++)
+	{
+		menuOptions[i].setFont(settings.font_1);
+		menuOptions[i].setString(options[i]);
+		menuOptions[i].setCharacterSize(60);
+		if (!ingame)
+		{
+			menuOptions[i].setPosition(mainWindow.getSize().x - 550, (mainWindow.getSize().y - 340) + (i * 75));
+		}
+		else
+		{
+			float width = menuOptions[i].getGlobalBounds().width;
+			menuOptions[i].setPosition((mainWindow.getSize().x / 2) - (width / 2), (mainWindow.getSize().y - 450) + (i * 75));
+		}
+	}
+
+	int current = 0;
+	while (true)
+	{
+		Event handler;
+		if (mainWindow.pollEvent(handler))
+		{
+			if (handler.type == Event::KeyPressed)
+			{
+				if (handler.key.code == Keyboard::Escape)
+				{
+					current = options.size();
+					break;
+				}
+				else if (handler.key.code == Keyboard::Up)
+				{
+					current -= 1;
+					if (current < 0)
+					{
+						current = options.size() - 1;
+					}
+				}
+				else if (handler.key.code == Keyboard::Down)
+				{
+					current = (++current) % options.size();
+				}
+				else if (handler.key.code == Keyboard::Return)
+				{
+					break;
+				}
+			}
+		}
+
+		mainWindow.setView(screen);
+
+		if (!ingame)
+		{
+			mainWindow.draw(background);
+		}
+		else
+		{
+			mainWindow.draw(eBackground);
+		}
+
+		for (int i = 0; i < options.size(); i++)
+		{
+			menuOptions[i].setColor(Color(255, 255, 255));
+			if (i == current)
+			{
+				menuOptions[i].setColor(Color(85, 0, 0));
+			}
+			mainWindow.draw(menuOptions[i]);
+		}
+
+		mainWindow.display();
+	}
+
+	delete[] menuOptions;
+	return current;
 }
 
 string menu::mapChoice()
@@ -278,53 +346,7 @@ string menu::mapChoice()
 	return "";
 }
 
-void menu::editorMenu(editor *map)
-{
-	mainWindow.draw(eBackground);
-	String texts[4] = { "Resume", "Reset", "Save", "Quit" };
-	Text menuOptions[4];
-	int menuOptionsSize = 4;
 
-	for (int i = 0; i < 4; i++)
-	{
-		menuOptions[i].setFont(settings.font_1);
-		menuOptions[i].setString(texts[i]);
-		menuOptions[i].setCharacterSize(60);
-		
-		float width = menuOptions[i].getGlobalBounds().width;
-		menuOptions[i].setPosition((mainWindow.getSize().x / 2) - (width / 2), (mainWindow.getSize().y - 450) + (i * 75));
-	}
-
-	while (true)
-	{
-		int choice = choiceLoop(menuOptions, menuOptionsSize, eBackground);
-		if (choice == 0)
-		{
-			map->mainLoop();
-		}
-		else if (choice == 1)
-		{
-			delete map;
-			map = new editor(mainWindow);
-			map->mainLoop();
-			break;
-		}
-		else if (choice == 2)
-		{
-			string mapName = setMapName(map->getMapName());
-			map->saveMap(mapName);
-		}
-		else if (choice == 3)
-		{
-			break;
-		}
-		else if (choice == menuOptionsSize)
-		{
-			break;
-		}
-	}
-	
-}
 
 string menu::setMapName(string prevName)
 {
@@ -402,304 +424,7 @@ string menu::setMapName(string prevName)
 	}
 }
 
-void menu::gameSettings()
-{
-	Text menuOptions[3];
-	int menuOptionsSize = 3;
-	String texts[3] = { "Choose Avatar", "Create new Avatar!", "Back" };
-
-	for (int i = 0; i < menuOptionsSize; i++)
-	{
-		menuOptions[i].setFont(settings.font_1);
-		menuOptions[i].setString(texts[i]);
-		menuOptions[i].setCharacterSize(60);
-		menuOptions[i].setPosition(mainWindow.getSize().x - 650, (mainWindow.getSize().y - 300) + (i * 75));
-	}
-
-	while (true)
-	{
-		int currentMenuChoice = choiceLoop(menuOptions, menuOptionsSize, background);
-		if (currentMenuChoice == 0)
-		{
-			game *p = new game(mainWindow, &settings);
-			delete p;
-		}
-		else if (currentMenuChoice == 1)
-		{
-			Clock timer;
-			while (1)
-			{
-				RectangleShape curtain;
-				curtain.setFillColor(Color(0, 0, 0, timer.getElapsedTime().asMilliseconds() / 8));
-				curtain.setPosition(0, 0);
-				curtain.setSize(Vector2f(mainWindow.getSize()));
-				mainWindow.draw(curtain);
-				mainWindow.display();
-				if (timer.getElapsedTime().asMilliseconds() >= 2000)
-				{
-					choiceClass();
-					break;
-				}
-			}
-		}
-		else if (currentMenuChoice == 2)
-		{
-			break;
-		}
-	}
-}
-
 float shiftOther(float time)
 {
 	return -(pow(time, 2) / 1500);
-}
-
-void menu::choiceClass()
-{
-	// £adowanie i na³o¿enie tekstur
-	Texture backgroundTex, swordsTex, arcTex, hatTex;
-	backgroundTex.loadFromFile("data/Graphics/BG_class.jpg");
-	swordsTex.loadFromFile("data/Graphics/Class/Swords.png");
-	arcTex.loadFromFile("data/Graphics/Class/Arc.png");
-	hatTex.loadFromFile("data/Graphics/Class/Hat.png");
-	
-	Sprite BG, swords, arc, hat;
-	BG.setTexture(backgroundTex);
-	swords.setTexture(swordsTex);
-	arc.setTexture(arcTex);
-	hat.setTexture(hatTex);
-	
-	// Rozmieszczenie ikon klas oraz t³o
-	const float widthClassBox = 1000;
-	float side = (mainWindow.getSize().x - widthClassBox) / 2;
-	float top = (mainWindow.getSize().y / 2) - 256;
-	swords.setPosition(side, top);
-	arc.setPosition(side + 256 + 116, top);
-	hat.setPosition(side + 512 + 116 + 116, top);
-	swords.setColor(Color(255, 255, 255, 200));
-	arc.setColor(Color(255, 255, 255, 200));
-	hat.setColor(Color(255, 255, 255, 200));
-	Sprite *classes[] = { &swords, &arc, &hat };
-
-	RectangleShape curtain;
-	curtain.setSize(Vector2f(mainWindow.getSize()));
-	curtain.setPosition(0, 0);
-	Clock timer;
-	BG.setPosition(0, 0);
-
-	// Tekst
-	bool choosen = false;
-	string name = "";
-	Text nameBox;
-	nameBox.setFont(settings.font_1);
-	Vector2f centerPos(mainWindow.getSize().x / 2, mainWindow.getSize().y / 2);
-	nameBox.setString("Wpisz swoje imie");
-	nameBox.setCharacterSize(40);
-	nameBox.setColor(Color(255, 255, 255, 125));
-	bool nameBoxClicked = false;
-
-	enum ClassMarks
-	{
-		SWORD, ARC, HAT, COUNT
-	} current;
-	current = ClassMarks::SWORD;
-
-	float currentPosX = classes[current]->getPosition().x;
-
-	while (1)
-	{
-		mainWindow.draw(BG);
-		//curtain.setFillColor(Color(0, 0, 0, 0));
-
-		if (!choosen)
-		{
-			mainWindow.draw(swords);
-			mainWindow.draw(arc);
-			mainWindow.draw(hat);
-			
-
-			Event handler;
-			if (mainWindow.pollEvent(handler))
-			{
-				if (handler.type == Event::KeyPressed)
-				{
-					if (handler.key.code == Keyboard::Right)
-					{
-						int a = current;
-						current = (ClassMarks)(++a%ClassMarks::COUNT);
-					}
-					else if (handler.key.code == Keyboard::Left)
-					{
-						int a = current;
-						current = (ClassMarks)(a == 0 ? ClassMarks::COUNT-1 : --a%ClassMarks::COUNT);
-					}
-					else if (handler.key.code == Keyboard::Return)
-					{
-						Clock timer;
-						unsigned int time = 1000;
-						float move = (centerPos.x - classes[current]->getGlobalBounds().width / 2) - currentPosX;
-						float shift = move / time;
-						
-						float startPosY = classes[current]->getPosition().y;
-						while (timer.getElapsedTime().asMilliseconds() < time)
-						{
-							if (shift != 0)
-							{
-								classes[current]->setPosition(currentPosX + (shift * timer.getElapsedTime().asMilliseconds()), classes[current]->getPosition().y);
-							}
-							classes[(current + 1) % 3]->setPosition(classes[(current + 1) % 3]->getPosition().x, startPosY + (shiftOther(timer.getElapsedTime().asMilliseconds())));
-							classes[(current + 2) % 3]->setPosition(classes[(current + 2) % 3]->getPosition().x, startPosY + (shiftOther(timer.getElapsedTime().asMilliseconds())));
-							//cout << shiftOther(timer.getElapsedTime().asMilliseconds()) << endl;
-
-							mainWindow.draw(BG);
-							mainWindow.draw(swords);
-							mainWindow.draw(arc);
-							mainWindow.draw(hat);
-							mainWindow.display();
-						}
-						choosen = true;
-					}
-					else if (handler.key.code == Keyboard::Escape)
-					{
-						return;
-					}
-				}
-			}
-			
-
-			for (size_t i = 0; i < ClassMarks::COUNT; i++)
-			{
-				//if (classes[i]->getGlobalBounds().contains((Vector2f)Mouse::getPosition(mainWindow)))
-				//
-				//TODO: change by keys
-				//
-				
-				
-
-				if (i == current)
-				{
-					classes[i]->setColor(Color(255, 255, 255, 255));
-					
-				}
-				else
-				{
-					classes[i]->setColor(Color(255, 255, 255, 155));
-				}
-			}
-
-			if (timer.getElapsedTime().asMilliseconds() < 1000)
-			{
-				curtain.setFillColor(Color(0, 0, 0, (255 - (timer.getElapsedTime().asMilliseconds()) / 4)));
-				mainWindow.draw(curtain);
-			}
-		}
-		else
-		{
-			mainWindow.draw(*classes[current]);
-			nameBox.setPosition(centerPos.x - nameBox.getGlobalBounds().width / 2, centerPos.y - nameBox.getGlobalBounds().height / 2 + 200);
-			mainWindow.draw(nameBox);
-
-			if (true)
-			{
-				Clock timer;
-				float dist = centerPos.x - currentPosX;
-				unsigned int msec = 1600;
-				float step = dist / msec;
-				while (timer.getElapsedTime().asMilliseconds() < msec)
-				{
-
-				}
-
-				Event handler;
-				if (mainWindow.pollEvent(handler))
-				{
-					
-
-					if (handler.type == Event::KeyPressed)
-					{
-						if (handler.type == Event::TextEntered)
-						{
-							if (handler.key.code != 13)
-							{
-								if (handler.text.unicode == '\b')
-								{
-									name = name.substr(0, name.size() - 1);
-								}
-								else if (handler.text.unicode < 128)
-								{
-									name += static_cast<char>(handler.text.unicode);
-								}
-
-								nameBox.setCharacterSize(60);
-								nameBox.setColor(Color(255, 255, 255, 255));
-								nameBox.setString(name);
-							}
-						}
-					}
-				}
-			}
-			/* else
-			{
-				Vector2i mousePosition = Mouse::getPosition();
-				cout << "Mouse position: " << mousePosition.x << ", " << mousePosition.y << endl;
-				cout << "nameBox position: " << nameBox.getPosition().x << " - " << nameBox.getPosition().x + nameBox.getGlobalBounds().width
-					<< ", " << nameBox.getPosition().y << " - " << nameBox.getPosition().y + nameBox.getGlobalBounds().height << endl;
-				if (mousePosition.y > nameBox.getPosition().y)
-				{
-					if (mousePosition.y < nameBox.getPosition().y + nameBox.getGlobalBounds().height)
-					{
-						if (mousePosition.x > nameBox.getPosition().x)
-						{
-							if (mousePosition.x < nameBox.getPosition().x + nameBox.getGlobalBounds().width)
-							{
-								nameBox.setColor(Color(255, 255, 255, 255));
-								if (Mouse::isButtonPressed(Mouse::Left))
-								{
-									nameBoxClicked = true;
-								}
-							}
-							else
-							{
-								nameBox.setColor(Color(255, 255, 255, 125));
-								if (Mouse::isButtonPressed(Mouse::Left))
-								{
-									nameBoxClicked = false;
-								}
-							}
-						}
-						else
-						{
-							nameBox.setColor(Color(255, 255, 255, 125));
-							if (Mouse::isButtonPressed(Mouse::Left))
-							{
-								nameBoxClicked = false;
-							}
-						}
-					}
-					else
-					{
-						nameBox.setColor(Color(255, 255, 255, 125));
-						if (Mouse::isButtonPressed(Mouse::Left))
-						{
-							nameBoxClicked = false;
-						}
-					}
-				}
-				else
-				{
-					nameBox.setColor(Color(255, 255, 255, 125));
-					if (Mouse::isButtonPressed(Mouse::Left))
-					{
-						nameBoxClicked = false;
-					}
-				}
-			} */
-			
-		}
-
-		
-
-		mainWindow.display();
-	}
-	
 }

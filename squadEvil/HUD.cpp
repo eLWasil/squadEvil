@@ -27,7 +27,7 @@ HUD::~HUD()
 
 void HUD::update()
 {
-	Vector2f posP = Player.getConstSprite().getPosition();
+	Vector2f posP = Player.getSprite().getPosition();
 
 	int gold = Player.getGold();
 	std::string gold_1 = "G: ";
@@ -51,7 +51,7 @@ void HUD::update()
 			valueOfStatistic[i]++;
 		}
 		float statisticProc = valueOfStatistic[i] / statisticMax[i];
-		Vector2f size(Player.getConstSprite().getGlobalBounds().width * statisticProc, 6);
+		Vector2f size(Player.getSprite().getGlobalBounds().width * statisticProc, 6);
 		statistic[i].setPosition(posP.x, posP.y - 40 + (i*(size.y + 2)));
 		statistic[i].setSize(size);
 	}

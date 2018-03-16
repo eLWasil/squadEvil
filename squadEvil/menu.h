@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <string>
+#include <vector>
 #include <SFML\Graphics.hpp>
 #include "editor.h";
 #include "options.h"
@@ -14,6 +15,7 @@ public:
 	menu(RenderWindow &, options &);
 	~menu();
 
+	void mainLoop();
 	RenderWindow &mainWindow;
 private:
 	Texture backgroundTex;
@@ -28,16 +30,15 @@ private:
 	int currentMenuChoice;
 
 	void draw();
-	void mainLoop();
-	int choiceLoop(Text[], int size, Sprite);
+	int choiceLoop(vector <string>, bool inGameMenu = false);
 
 	/* SECTIONS */
-	void editorSettings(); //Open from main menu
-	string mapChoice();
-	void editorMenu(editor *); //Open from editor
-	string setMapName(string);
 	void gameSettings(); //Open from main menu
-	void choiceClass();
+	void editorSettings(); //Open from main menu
+	void editorMenu(editor *); //Open from editor
+
+	string mapChoice();
+	string setMapName(string);
 
 	FileMenager filesManager;
 };

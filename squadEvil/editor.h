@@ -27,7 +27,6 @@ private:
 	void loadInterace();
 	int mouseDelta;
 
-	int interfaceMode;
 	Texture coinsModeTex[4];
 
 	void draw();

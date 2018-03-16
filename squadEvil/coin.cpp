@@ -25,7 +25,7 @@ coin::~coin()
 void coin::eventP(player &Player)
 {
 	//cout << name << " posX: " << sprite.getPosition().x << endl;
-	if (Player.getConstSprite().getGlobalBounds().intersects(sprite.getGlobalBounds()))
+	if (Player.getSprite().getGlobalBounds().intersects(sprite.getGlobalBounds()))
 	{
 		this->remove = true; time.restart();
 		if (!blockMutex)

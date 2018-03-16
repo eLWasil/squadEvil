@@ -1,5 +1,5 @@
 #pragma once
-#include "map_of_level.h"
+#include "map_level.h"
 #include "Mage.h"
 #include "options.h"
 #include "FileMenager.h"
@@ -12,25 +12,33 @@ public:
 	game(RenderWindow &window, options *setting);
 	~game();
 
-	map_of_level *level;
+	map_level *level;
 	void mainLoop();
 	options &settings;
 	string currentMapName;
+
 private:
 	RenderWindow &window;
 	View screen;
 	FileMenager f_manager;
 	physics Physics;
 
-	int SCRN_WIDTH,
-		SCRN_HEIGHT;
+	player *p_1;
+
+	vector <skills *> skillsArray;
+
 	
+	bool isVisible(Sprite *);
 	void draw();
+	void drawTiles();
+	void drawObjects();
+	void drawEnemies();
+	void drawSkills();
+
 	void camera();
 	void camera2();
 	Vector2f cameraTarget;
 
-	player *p_1;
 
 	// Timers
 	Clock cameraTmer;
@@ -38,6 +46,10 @@ private:
 	
 	void endOfLevel();
 
-	vector <skills *> skillsArray;
+
+	int SCRN_WIDTH,
+		SCRN_HEIGHT;
+
+	Sprite background;
 };
 

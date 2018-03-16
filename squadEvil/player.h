@@ -15,13 +15,11 @@ public:
 
 	/* GETTERS */
 	Sprite &getSprite();
-	const Sprite &getConstSprite();
 	Vector2f getPosition();
 	Vector2f getCenter();
 	/* SETTERS */
-	void setPosition(float x, float y) { avatar.setPosition((x < 0 ? 0 : x), (y < 0 ? 0 : y)); };
-	void setPosition(Vector2f pos) { avatar.setPosition(pos); };
-	void setMap(std::vector <std::vector < int>> &);
+	void setPosition(float x, float y) { pSprite.setPosition((x < 0 ? 0 : x), (y < 0 ? 0 : y)); };
+	void setPosition(Vector2f pos) { pSprite.setPosition(pos); };
 
 	/* STATISTICS */
 	virtual const int getGold() { return currentStats.gold; };
@@ -43,7 +41,7 @@ public:
 
 	/* MECHANICS */
 	virtual skills *getSkill(int number) = 0;
-	void startJump() { isJumping = true; startingPositionY = avatar.getPosition().y; }; // Secured on game::mainLoop Key::Space
+	void startJump() { isJumping = true; startingPositionY = pSprite.getPosition().y; }; // Secured on game::mainLoop Key::Space
 	void endJump() { isJumping = false; };
 	const bool getJumpingVariable() { return isJumping; };
 	float startingPositionY;
@@ -59,7 +57,6 @@ public:
 
 	void death(Vector2f checkpoint) { currentStats.HP = currentStats.max_hp; setPosition(checkpoint); }
 	void hitEffect();
-	void hudEffect(RenderWindow &);
 	
 	/* MOVE */
 	enum dir
@@ -90,7 +87,7 @@ protected:
 
 private:
 	HUD hud;
-	Sprite avatar;
+	Sprite pSprite;
 	Texture girlTex[11][9];
 	//int texWidth, texHeight;
 	//std::vector <std::vector <int>> map;

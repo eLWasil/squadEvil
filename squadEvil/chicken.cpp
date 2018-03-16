@@ -47,7 +47,7 @@ void chicken::eventP(player &Player)
 {
 	if (runAway)
 	{
-		Vector2f pPos = Player.getConstSprite().getPosition();
+		Vector2f pPos = Player.getSprite().getPosition();
 
 		double a = abs(pPos.x - sprite.getPosition().x);
 		double b = abs(pPos.y - sprite.getPosition().y);
@@ -61,9 +61,9 @@ void chicken::eventP(player &Player)
 	}
 	else if (!attack)
 	{
-		Vector2f pPos = Player.getConstSprite().getPosition();
-		pPos.x += Player.getConstSprite().getGlobalBounds().width / 2;
-		pPos.y += Player.getConstSprite().getGlobalBounds().height / 2;
+		Vector2f pPos = Player.getSprite().getPosition();
+		pPos.x += Player.getSprite().getGlobalBounds().width / 2;
+		pPos.y += Player.getSprite().getGlobalBounds().height / 2;
 
 		double a = abs(pPos.x - sprite.getPosition().x);
 		double b = abs(pPos.y - sprite.getPosition().y);
@@ -76,8 +76,8 @@ void chicken::eventP(player &Player)
 			attack = true;
 			sprite.setTexture(allTex[0]);
 			timer.restart();
-			target.x = Player.getPosition().x + (Player.getConstSprite().getGlobalBounds().width / 2);
-			target.y = Player.getPosition().y + (Player.getConstSprite().getGlobalBounds().height / 2);
+			target.x = Player.getPosition().x + (Player.getSprite().getGlobalBounds().width / 2);
+			target.y = Player.getPosition().y + (Player.getSprite().getGlobalBounds().height / 2);
 			targetChanging = true;
 		}
 	}
@@ -88,8 +88,8 @@ void chicken::eventP(player &Player)
 		if (timer.getElapsedTime().asSeconds() > 1)
 		{
 			timer.restart();
-			target.x = Player.getPosition().x + (Player.getConstSprite().getGlobalBounds().width / 2);
-			target.y = Player.getPosition().y + (Player.getConstSprite().getGlobalBounds().height / 2);
+			target.x = Player.getPosition().x + (Player.getSprite().getGlobalBounds().width / 2);
+			target.y = Player.getPosition().y + (Player.getSprite().getGlobalBounds().height / 2);
 			targetChanging = true;
 		}
 	}
@@ -161,7 +161,7 @@ void chicken::eventP(player &Player)
 
 
 	/* PLAYER COLLISION */
-	if (sprite.getGlobalBounds().intersects(Player.getConstSprite().getGlobalBounds()))
+	if (sprite.getGlobalBounds().intersects(Player.getSprite().getGlobalBounds()))
 	{
 		if (isHFlagOpen)
 		{

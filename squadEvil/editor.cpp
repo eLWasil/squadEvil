@@ -7,7 +7,7 @@ const int areaTileMove = 64;
 bool editorVisable;
 bool reverseTile = false, darkMode = false;
 
-editor::editor(RenderWindow &window, string filename) : edWindow(window), interfaceMode(0), mouseDelta(0)
+editor::editor(RenderWindow &window, string filename) : edWindow(window), mouseDelta(0)
 {
 	SCRN_WIDTH = window.getSize().x;
 	SCRN_HEIGHT = window.getSize().y;
@@ -147,7 +147,7 @@ void editor::loadInterace()
 {
 	int firstUsableObjectNumber = TexNames::EMPTY;
 
-	interfaceSprites.resize(TexNames::TILESTOTHEEND + level.numOfTileTypes);
+	interfaceSprites.resize(TexNames::TILESTOTHEEND + level.numOfTileTypes - firstUsableObjectNumber);
 	for (int i = 0; i < interfaceSprites.size(); i++)
 	{
 		Vector2f newpos(SCRN_WIDTH - 64 - 32, i * 64 + 128);

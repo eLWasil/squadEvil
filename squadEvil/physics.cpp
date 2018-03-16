@@ -1,6 +1,5 @@
 #include "physics.h"
 #include <math.h>
-#define TILESIZE 64
 
 
 physics::physics()
@@ -16,7 +15,7 @@ physics::~physics()
 {
 }
 
-void physics::setLevel(map_of_level *map)
+void physics::setLevel(map_level *map)
 {
 	this->map = map;
 }
@@ -78,7 +77,7 @@ void physics::gravity(player *p)
 
 		if (map->getTileType(tileOnNewPosition) == 0)
 		{
-			if (newPosition.y > (map->getSizeMapInNumbers() - 5) * TILESIZE)
+			if (newPosition.y > map->getMapHeader().mapHeight * map->TILESIZE)
 			{
 				p->setPosition(controlPoint);
 			}
@@ -90,10 +89,6 @@ void physics::gravity(player *p)
 		else
 		{
 			gravitySpeedTimer.restart();
-			//isJump = false;
-
-
-			//jumpingCounter = 2;
 		}
 	}
 	
@@ -140,7 +135,7 @@ void physics::tileCollisions(player *p)
 		{
 			newPosition.x = 0;
 		}
-		else if (newPosition.x > map->getMapSizePx())
+		else if (newPosition.x > map->getMapHeader().mapWidth * map->TILESIZE)
 		{
 			currentMoveSpeed = 0;
 		}

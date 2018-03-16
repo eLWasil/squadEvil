@@ -62,6 +62,10 @@ public:
 	accessories* getObjectAt(int idx);
 	enemies* getEnemieAt(int idx);
 
+	int getTileType(Vector2f pos);
+	const mapFileHeader getMapHeader();
+
+	const int TILESIZE;
 private:
 	string mapName;
 	mapFileHeader mapHeader;
