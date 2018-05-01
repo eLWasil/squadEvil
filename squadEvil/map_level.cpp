@@ -18,14 +18,16 @@
 #include "bush.h"
 #include "plate.h"
 
+//accessories
+
 map_level::map_level() : numOfTileTypes(18), TILESIZE(64)
 {
 	loadTextures();
 	
 	mapName = "My Map";
 	
-	mapHeader.mapWidth = 40;
-	mapHeader.mapHeight = 20;
+	mapHeader.mapWidthAsTiles = 40;
+	mapHeader.mapHeightAsTiles = 20;
 	mapHeader.numOfObjets = 0;
 	mapHeader.numOfTitleChars = mapName.size();
 
@@ -38,16 +40,16 @@ map_level::map_level(string fileMapName) : numOfTileTypes(18), TILESIZE(64)
 	readMap(fileMapName);
 }
 
-map_level::~map_level()
+map_level::~map_level() 
 {
-	for (int i = 0; i < objectsVector.size(); i++)
-	{
-		delete objectsVector[i];
-	}
-
 	for (int j = 0; j < enemiesVector.size(); j++)
 	{
-		delete enemiesVector[j];
+		enemiesVector[j].reset();
+	}
+
+	for (int i = 0; i < objectsVector.size(); i++)
+	{
+		objectsVector[i].reset();
 	}
 }
 
@@ -69,10 +71,10 @@ Texture & map_level::getTexture(int idx)
 
 void map_level::buildMapBody()
 {
-	tilesTypeMap.resize(mapHeader.mapWidth);
-	for (int col = 0; col < mapHeader.mapWidth; col++)
+	tilesTypeMap.resize(mapHeader.mapWidthAsTiles);
+	for (int col = 0; col < mapHeader.mapWidthAsTiles; col++)
 	{
-		tilesTypeMap[col].resize(mapHeader.mapHeight, 0);
+		tilesTypeMap[col].resize(mapHeader.mapHeightAsTiles, 0);
 	}
 }
 
@@ -192,7 +194,7 @@ void map_level::setObject(filemapObject *object)
 
 Vector2f map_level::getNearestObjectPosition(Vector2f mousePos)
 {
-	accessories *temp = nullptr;
+	//accessories *temp = nullptr;
 	int range = 32;
 	bool founded = false;
 	Vector2f position(mousePos);
@@ -300,7 +302,7 @@ accessories* map_level::getObjectAt(int idx)
 {
 	if (idx >= 0 && idx < objectsVector.size())
 	{
-		return objectsVector[idx];
+		return objectsVector[idx].get();
 	}
 	return nullptr;
 }
@@ -309,7 +311,7 @@ enemies* map_level::getEnemieAt(int idx)
 {
 	if (idx >= 0 && idx < enemiesVector.size())
 	{
-		return enemiesVector[idx];
+		return enemiesVector[idx].get();
 	}
 	return nullptr;
 }
@@ -356,34 +358,34 @@ void map_level::setObject(Sprite sprite, int type)
 	}
 }
 
-accessories * map_level::objectFactory(int type)
+unique_ptr<accessories> map_level::objectFactory(int type)
 {
-	accessories *temp = nullptr;
+	unique_ptr<accessories> temp = nullptr;
 	switch (TexNames(type))
 	{
 	case CHICKEN:
-		temp = new chicken();
+		temp = make_unique<accessories>(chicken());
 		break;
 	case BUSH:
-		temp = new bush();
+		temp = make_unique<accessories>(bush());
 		break;
 	case CAMPFIRE:
-		temp = new campFire();
+		temp = make_unique<accessories>(campFire());
 		break;
 	case CHEST:
-		temp = new chest();
+		temp = make_unique<accessories>(chest());
 		break;
 	case COIN:
-		temp = new coin();
+		temp = make_unique<accessories>(coin());
 		break;
 	case BOX:
-		temp = new box();
+		temp = make_unique<accessories>(box());
 		break;
 	case LADDER:
-		temp = new ladder();
+		temp = make_unique<accessories>(ladder());
 		break;
 	case NEXTPLATE:
-		temp = new plate();
+		temp = make_unique<accessories>(plate());
 		break;
 	}
 	return temp;
@@ -391,7 +393,8 @@ accessories * map_level::objectFactory(int type)
 
 void map_level::addObjectToVector(Sprite sprite, int type)
 {
-	accessories *temp = objectFactory(type);
+	unique_ptr<accessories> temp = objectFactory(type);
+
 	if (temp == nullptr)
 	{
 		tileSpritesVector.push_back(sprite);
@@ -399,14 +402,16 @@ void map_level::addObjectToVector(Sprite sprite, int type)
 	else
 	{
 		temp->setPosition(sprite.getPosition());
-		enemies *isEnemie = dynamic_cast <enemies *>(temp);
+		
+		enemies *isEnemie = dynamic_cast<enemies *>(temp.get());
 		if (isEnemie)
 		{
-			enemiesVector.push_back(isEnemie);
+			unique_ptr <enemies> enemie = make_unique<enemies>(*isEnemie);
+			enemiesVector.push_back(std::move(enemie));
 		}
 		else
 		{
-			objectsVector.push_back(temp);
+			objectsVector.push_back(std::move(temp));
 		}
 	}
 }
@@ -424,14 +429,14 @@ string map_level::makeFileName()
 void map_level::resizeMap(Vector2i WidthHeightNewSize)
 {
 	bool toResize = false;
-	if (WidthHeightNewSize.x >= mapHeader.mapWidth)
+	if (WidthHeightNewSize.x >= mapHeader.mapWidthAsTiles)
 	{
-		mapHeader.mapWidth = WidthHeightNewSize.x + 1;
+		mapHeader.mapWidthAsTiles = WidthHeightNewSize.x + 1;
 		toResize = true;
 	}
-	else if (WidthHeightNewSize.y >= mapHeader.mapHeight)
+	else if (WidthHeightNewSize.y >= mapHeader.mapHeightAsTiles)
 	{
-		mapHeader.mapHeight = WidthHeightNewSize.y + 1;
+		mapHeader.mapHeightAsTiles = WidthHeightNewSize.y + 1;
 		toResize = true;
 	}
 
@@ -474,8 +479,8 @@ void map_level::loadTextures()
 
 void map_level::synchronizeMap()
 {
-	mapHeader.mapWidth = tilesTypeMap.size();
-	mapHeader.mapHeight = tilesTypeMap[0].size();
+	mapHeader.mapWidthAsTiles = tilesTypeMap.size();
+	mapHeader.mapHeightAsTiles = tilesTypeMap[0].size();
 	mapHeader.numOfObjets = objectsToFileSave.size();
 	mapHeader.numOfTitleChars = mapName.size();
 

@@ -10,7 +10,7 @@ public:
 	~enemies();
 
 	RectangleShape hpBar;
-	virtual const bool getAttackState() { return attack; }
+	virtual const bool getAttackState() { return targetActive; }
 	virtual void hit(skills*);
 	virtual bool update(); //return if delete object
 
@@ -32,7 +32,7 @@ protected:
 		int angle = 0;
 		float range;
 	} enemie;
-	bool attack;
+	bool targetActive;
 
 	Clock hitTimer;
 	Texture allTex[4];

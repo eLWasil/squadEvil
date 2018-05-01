@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <memory>
 #include <fstream>
 #include <string>
 #include <SFML\Graphics.hpp>
@@ -20,8 +21,8 @@ struct filemapObject
 struct mapFileHeader
 {
 	int numOfTitleChars;
-	int mapWidth;
-	int mapHeight;
+	int mapWidthAsTiles;
+	int mapHeightAsTiles;
 	int numOfObjets;
 };
 
@@ -74,14 +75,14 @@ private:
 	vector <Texture > textures;
 
 	vector <Sprite> tileSpritesVector;
-	vector <accessories *> objectsVector;
-	vector <enemies *> enemiesVector;
+	vector <unique_ptr <accessories>> objectsVector;
+	vector <unique_ptr <enemies>> enemiesVector;
 
 	vector <vector <int>> tilesTypeMap;
 	vector <filemapObject> objectsToFileSave;
 	bool isObjectCorrect(filemapObject *);
 
-	accessories* objectFactory(int type);
+	unique_ptr <accessories> objectFactory(int type);
 	string makeFileName();
 
 	void setObject(filemapObject *);

@@ -93,10 +93,6 @@ void game::mainLoop()
 						}
 					}
 				}
-				else if (handler.key.code == Keyboard::Z)
-				{
-					
-				}
 
 			}
 			else if (handler.type == Event::KeyReleased)
@@ -161,8 +157,15 @@ void game::draw()
 	/* PLAYER */
 	if (p_1->getHp() > 0)
 	{
-		p_1->update();
-		window.draw(p_1->getSprite());
+		if (p_1->getPosition().y > (level->getMapHeader().mapHeightAsTiles - 2) * level->TILESIZE)
+		{
+			p_1->setPosition(0, 0);
+		}
+		else
+		{
+			p_1->update();
+			window.draw(p_1->getSprite());
+		}
 	}
 	else
 	{
@@ -187,7 +190,7 @@ void game::drawTiles()
 		{
 			window.draw(*tileHolder);
 		}
-		else if (tileHolder->getPosition().x > screen.getCenter().x - (SCRN_WIDTH / 2) + 128)
+		else if (tileHolder->getPosition().x > screen.getCenter().x + (SCRN_WIDTH / 2) + 128)
 		{
 			break;
 		}
@@ -214,7 +217,7 @@ void game::drawObjects()
 			objectHolder->update();
 			objectHolder->eventP(*p_1);
 		}
-		else if (objectHolder->getSprite().getPosition().x > screen.getCenter().x - (SCRN_WIDTH / 2) + 128)
+		else if (objectHolder->getSprite().getPosition().x > screen.getCenter().x + (SCRN_WIDTH / 2) + 128)
 		{
 			break;
 		}
@@ -241,9 +244,10 @@ void game::drawEnemies()
 			enemieHolder->update();
 			enemieHolder->eventP(*p_1);
 		}
-		else if (enemieHolder->getSprite().getPosition().x > screen.getCenter().x - (SCRN_WIDTH / 2) + 128)
+		else if (enemieHolder->getAttackState())
 		{
-			break;
+			enemieHolder->update();
+			enemieHolder->eventP(*p_1);
 		}
 
 	} while (++idx);

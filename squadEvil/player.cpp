@@ -28,10 +28,10 @@ player::player() : isJumping(false), isAttack(false), currentDirState(dir::STOP)
 
 	// AVATAR SPRITE 
 	lastControlPoint = Vector2f(20, 0);
-	pSprite.setPosition(lastControlPoint);
-	pSprite.setTexture(girlTex[cTextureState][0]);
-	pSprite.setOrigin(pSprite.getGlobalBounds().width / 2, pSprite.getGlobalBounds().height / 2 * 0);
-	pSprite.setScale(Vector2f(0.14, 0.14));
+	playerSprite.setPosition(lastControlPoint);
+	playerSprite.setTexture(girlTex[cTextureState][0]);
+	playerSprite.setOrigin(playerSprite.getGlobalBounds().width / 2, playerSprite.getGlobalBounds().height / 2 * 0);
+	playerSprite.setScale(Vector2f(0.14, 0.14));
 	
 	startingPositionY = 0; // for jumping
 	hitColorCounter = 0;
@@ -46,22 +46,22 @@ player::~player()
 
 Vector2f player::getPosition()
 {
-	return pSprite.getPosition();
+	return playerSprite.getPosition();
 }
 
 Vector2f player::getCenter()
 {
-	Vector2f center = pSprite.getPosition();
-	center.x += pSprite.getGlobalBounds().width / 2;
-	center.y += pSprite.getGlobalBounds().height / 2;
+	Vector2f center = playerSprite.getPosition();
+	center.x += playerSprite.getGlobalBounds().width / 2;
+	center.y += playerSprite.getGlobalBounds().height / 2;
 	return center;
 }
 
 void player::hitEffect()
 {
-	pSprite.setColor(Color(0, 0, 0));
+	playerSprite.setColor(Color(0, 0, 0));
 	hitColorTimer.restart();
-	pSprite.setPosition(pSprite.getPosition().x - 5, pSprite.getPosition().y - 10);
+	playerSprite.setPosition(playerSprite.getPosition().x - 5, playerSprite.getPosition().y - 10);
 }
 
 
@@ -72,7 +72,7 @@ void player::checkTexState()
 	if (avatarFramesTimer.getElapsedTime().asMilliseconds() > (1000 / 60))
 	{
 		texCounter = (texCounter + 1) % 9;
-		pSprite.setTexture(girlTex[cTextureState][texCounter]);
+		playerSprite.setTexture(girlTex[cTextureState][texCounter]);
 		avatarFramesTimer.restart();
 	}
 
@@ -96,31 +96,26 @@ void player::checkTexState()
 
 void player::update()
 {
-	Vector2f oldPosition = pSprite.getPosition();
-	if (oldPosition.x < 0)
-	{
-		pSprite.setPosition(0, oldPosition.y);
-	}
 
 	checkTexState();
 	setCorners();
 	regen();
 
-	//std::cout << pSprite.getOrigin().x << ", " << pSprite.getOrigin().y << std::endl;
-	//std::cout << pSprite.getScale().x << std::endl;
-	//pSprite.setOrigin(pSprite.getGlobalBounds().width , pSprite.getGlobalBounds().height );
-	//pSprite.rotate(10);
+	//std::cout << playerSprite.getOrigin().x << ", " << playerSprite.getOrigin().y << std::endl;
+	//std::cout << playerSprite.getScale().x << std::endl;
+	//playerSprite.setOrigin(playerSprite.getGlobalBounds().width , playerSprite.getGlobalBounds().height );
+	//playerSprite.rotate(10);
 
 
 	if (hitColorTimer.getElapsedTime().asMilliseconds() > 300 && hitColorTimer.getElapsedTime().asMilliseconds() < 400)
 	{
-		pSprite.setColor(Color(255, 255, 255));
+		playerSprite.setColor(Color(255, 255, 255));
 	}
 }
 
 Sprite &player::getSprite()
 {
-	return pSprite;
+	return playerSprite;
 }
 
 void player::drawCorners(RenderWindow &window)
@@ -138,21 +133,21 @@ void player::drawCorners(RenderWindow &window)
 
 void player::setCorners()
 {
-	Vector2f pos = pSprite.getPosition();
+	Vector2f pos = playerSprite.getPosition();
 	/* CORNERS FOR COLLISIONS */
 	/* Have to be a little bit 'in' texture */
 	int padding = 6;
-	float avatarHalfWidth = pSprite.getGlobalBounds().width / 2;
+	float avatarHalfWidth = playerSprite.getGlobalBounds().width / 2;
 	corners[0].x = pos.x - avatarHalfWidth + padding; // LEFT TOP
 	corners[0].y = pos.y + padding;
 	corners[1].x = pos.x + avatarHalfWidth  - padding; // RIGHT TOP
 	corners[1].y = pos.y + padding;
 	corners[2].x = pos.x + avatarHalfWidth  - padding; // RIGHT BOT
-	corners[2].y = pos.y + pSprite.getGlobalBounds().height - padding - 4;
+	corners[2].y = pos.y + playerSprite.getGlobalBounds().height - padding - 4;
 	corners[3].x = pos.x - avatarHalfWidth + padding;
-	corners[3].y = pos.y + pSprite.getGlobalBounds().height - padding - 4; // LEFT BOT
+	corners[3].y = pos.y + playerSprite.getGlobalBounds().height - padding - 4; // LEFT BOT
 	
 	// Center
 	corners[4].x = pos.x;
-	corners[4].y = pos.y + pSprite.getGlobalBounds().height / 2;
+	corners[4].y = pos.y + playerSprite.getGlobalBounds().height / 2;
 }

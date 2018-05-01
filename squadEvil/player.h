@@ -18,8 +18,8 @@ public:
 	Vector2f getPosition();
 	Vector2f getCenter();
 	/* SETTERS */
-	void setPosition(float x, float y) { pSprite.setPosition((x < 0 ? 0 : x), (y < 0 ? 0 : y)); };
-	void setPosition(Vector2f pos) { pSprite.setPosition(pos); };
+	void setPosition(float x, float y) { playerSprite.setPosition((x < 0 ? 0 : x), (y < 0 ? 0 : y)); };
+	void setPosition(Vector2f pos) { playerSprite.setPosition(pos); };
 
 	/* STATISTICS */
 	virtual const int getGold() { return currentStats.gold; };
@@ -41,7 +41,7 @@ public:
 
 	/* MECHANICS */
 	virtual skills *getSkill(int number) = 0;
-	void startJump() { isJumping = true; startingPositionY = pSprite.getPosition().y; }; // Secured on game::mainLoop Key::Space
+	void startJump() { isJumping = true; startingPositionY = playerSprite.getPosition().y; }; // Secured on game::mainLoop Key::Space
 	void endJump() { isJumping = false; };
 	const bool getJumpingVariable() { return isJumping; };
 	float startingPositionY;
@@ -87,7 +87,7 @@ protected:
 
 private:
 	HUD hud;
-	Sprite pSprite;
+	Sprite playerSprite;
 	Texture girlTex[11][9];
 	//int texWidth, texHeight;
 	//std::vector <std::vector <int>> map;
@@ -117,6 +117,5 @@ private:
 	bool isJumping;
 	bool isAttack;
 	/************/
-
 };
 

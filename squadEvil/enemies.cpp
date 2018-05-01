@@ -6,7 +6,7 @@
 
 enemies::enemies() : isDead(false)
 {
-	attack = false;
+	targetActive = false;
 	hpBar.setFillColor(Color((82, 0, 10)));
 	hpBar.setPosition(this->sprite.getPosition().x, this->sprite.getPosition().y + 10);
 	Vector2f size(this->sprite.getGlobalBounds().width * stats.HP, 6);
@@ -46,9 +46,9 @@ int enemies::operator-=(int skillDmg)
 		stats.HP = 0;
 		isDead = true;
 	}
-	if (!attack)
+	if (!targetActive)
 	{
-		attack = true;
+		targetActive = true;
 	}
 	hitTimer.restart();
 	return stats.HP;
@@ -62,9 +62,9 @@ void enemies::hit(skills* skill)
 		stats.HP = 0;
 		isDead = true;
 	}
-	if (!attack)
+	if (!targetActive)
 	{
-		attack = true;
+		targetActive = true;
 	}
 }
 

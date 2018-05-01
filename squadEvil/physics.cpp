@@ -77,7 +77,7 @@ void physics::gravity(player *p)
 
 		if (map->getTileType(tileOnNewPosition) == 0)
 		{
-			if (newPosition.y > map->getMapHeader().mapHeight * map->TILESIZE)
+			if (newPosition.y > map->getMapHeader().mapHeightAsTiles * map->TILESIZE)
 			{
 				p->setPosition(controlPoint);
 			}
@@ -135,7 +135,7 @@ void physics::tileCollisions(player *p)
 		{
 			newPosition.x = 0;
 		}
-		else if (newPosition.x > map->getMapHeader().mapWidth * map->TILESIZE)
+		else if (newPosition.x > map->getMapHeader().mapWidthAsTiles * map->TILESIZE)
 		{
 			currentMoveSpeed = 0;
 		}

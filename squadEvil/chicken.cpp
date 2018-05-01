@@ -59,7 +59,7 @@ void chicken::eventP(player &Player)
 			runAway = false;
 		}
 	}
-	else if (!attack)
+	else if (!targetActive)
 	{
 		Vector2f pPos = Player.getSprite().getPosition();
 		pPos.x += Player.getSprite().getGlobalBounds().width / 2;
@@ -73,7 +73,7 @@ void chicken::eventP(player &Player)
 		if (c <= (enemie.range))
 		{
 			enemie.speed = attackSpeed;
-			attack = true;
+			targetActive = true;
 			sprite.setTexture(allTex[0]);
 			timer.restart();
 			target.x = Player.getPosition().x + (Player.getSprite().getGlobalBounds().width / 2);
@@ -196,7 +196,7 @@ bool chicken::update()
 		newPosition.x = sprite.getPosition().x + (enemie.speed * enemie.dir.x);
 		newPosition.y = sprite.getPosition().y + (enemie.speed * enemie.dir.y);
 
-		if (!attack)
+		if (!targetActive)
 		{
 
 			if (enemie.dir.x < 0)
