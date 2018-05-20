@@ -14,9 +14,9 @@ struct filemapObject
 {
 	int type;
 	float x, y;
+	bool isEnemie;
 
-
-	filemapObject(int t, float px, float py) : type(t), x(px), y(py) {};
+	filemapObject(int t, float px, float py, bool enemie) : type(t), x(px), y(py), isEnemie(enemie) {};
 };
 
 struct mapFileHeader
@@ -84,10 +84,12 @@ private:
 	bool isObjectCorrect(filemapObject *);
 
 	shared_ptr <accessories> objectFactory(int type);
+	shared_ptr <enemies> enemieFactory(int type);
 	string makeFileName();
 
 	void setObject(filemapObject *);
 	void addObjectToVector(Sprite sprite, int type);
+	void addEnemieToVector(Sprite sprite, int type);
 	void resizeMap(Vector2i WidthHeightNewSize);
 	void loadTextures();
 	void synchronizeMap();

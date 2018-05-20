@@ -162,7 +162,7 @@ void map_level::saveMap(string title)
 		{
 			if (tilesTypeMap[i][j] != 0)
 			{
-				filemapObject *temp = new filemapObject(tilesTypeMap[i][j], i * TILESIZE, j * TILESIZE);
+				filemapObject *temp = new filemapObject(tilesTypeMap[i][j], i * TILESIZE, j * TILESIZE, false);
 				file.write((char *)temp, sizeof(filemapObject));
 				delete temp;
 			}
@@ -357,12 +357,37 @@ void map_level::setObject(Sprite sprite, int type)
 	}
 	else if(type > TexNames::EMPTY)
 	{
-		objectsToFileSave.push_back(filemapObject(type, sprite.getPosition().x, sprite.getPosition().y));
-		addObjectToVector(sprite, type);
+		bool isEnemie = (type <= TexNames::TURTLE ? true : false);
+
+		objectsToFileSave.push_back(filemapObject(type, sprite.getPosition().x, sprite.getPosition().y, isEnemie));
+
+		if (isEnemie)
+		{
+			addEnemieToVector(sprite, type);
+		}
+		else
+		{
+			addObjectToVector(sprite, type);
+		}
 	}
 	else if (type == TexNames::EMPTY)
 	{
 		deleteObject(sprite.getPosition());
+	}
+}
+
+void map_level::addEnemieToVector(Sprite sprite, int type)
+{
+	shared_ptr<enemies> temp = enemieFactory(type);
+
+	if (temp == nullptr)
+	{
+		tileSpritesVector.push_back(sprite);
+	}
+	else
+	{
+		temp->setPosition(sprite.getPosition());
+		enemiesVector.push_back(temp);
 	}
 }
 
@@ -377,17 +402,7 @@ void map_level::addObjectToVector(Sprite sprite, int type)
 	else
 	{
 		temp->setPosition(sprite.getPosition());
-
-		shared_ptr<enemies> isEnemie = dynamic_pointer_cast<enemies>(temp);
-
-		if (isEnemie)
-		{
-			enemiesVector.push_back(isEnemie);
-		}
-		else
-		{
-			objectsVector.push_back(temp);
-		}
+		objectsVector.push_back(temp);
 	}
 }
 
@@ -396,9 +411,6 @@ shared_ptr<accessories> map_level::objectFactory(int type)
 	shared_ptr<accessories> temp = nullptr;
 	switch (TexNames(type))
 	{
-	case CHICKEN:
-		temp = make_shared<chicken>(chicken());
-		break;
 	case BUSH:
 		temp = make_shared<bush>(bush());
 		break;
@@ -419,6 +431,18 @@ shared_ptr<accessories> map_level::objectFactory(int type)
 		break;
 	case NEXTPLATE:
 		temp = make_shared<plate>(plate());
+		break;
+	}
+	return temp;
+}
+
+shared_ptr<enemies> map_level::enemieFactory(int type)
+{
+	shared_ptr<enemies> temp = nullptr;
+	switch (TexNames(type))
+	{
+	case CHICKEN:
+		temp = make_shared<chicken>(chicken());
 		break;
 	}
 	return temp;
