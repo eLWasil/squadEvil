@@ -98,8 +98,12 @@ void map_level::readMap(string fileName)
 
 	buildMapBody();
 	
-	mapName.resize(mapHeader.numOfTitleChars);
-	file.read((char *)&mapName, mapHeader.numOfTitleChars);
+
+	// NAZWA MAPY 
+	//mapName.resize(mapHeader.numOfTitleChars);
+	//file.read((char *)&mapName, mapHeader.numOfTitleChars);
+	//
+
 
 	int k = 0;
 	char *temp = new char[sizeof(filemapObject)];
@@ -118,26 +122,6 @@ void map_level::readMap(string fileName)
 	delete temp;
 
 	file.close();
-}
-
-bool map_level::isObjectCorrect(filemapObject *test)
-{
-	if (test->type < 0)
-	{
-		return false;
-	}
-
-	if (test->x < 0)
-	{
-		return false;
-	}
-
-	if (test->y < 0)
-	{
-		return false;
-	}
-
-	return true;
 }
 
 void map_level::saveMap(string title)
@@ -159,8 +143,12 @@ void map_level::saveMap(string title)
 	}
 	file.write((char *)(&mapHeader), sizeof(mapFileHeader));
 	
+	
+	// NAZWA MAPY 
+	//file.write((char *)mapName.c_str(), strlen(mapName.c_str()));
+	// 
 
-	file.write((char *)mapName.c_str(), strlen(mapName.c_str()));
+
 
 	for (int i = 0; i < objectsToFileSave.size(); i++)
 	{
@@ -184,12 +172,24 @@ void map_level::saveMap(string title)
 	file.close();
 }
 
-void map_level::setObject(filemapObject *object)
+bool map_level::isObjectCorrect(filemapObject *test)
 {
-	Sprite temp;
-	temp.setPosition(object->x, object->y);
-	temp.setTexture(getTexture(object->type));
-	setObject(temp, object->type);
+	if (test->type < 0)
+	{
+		return false;
+	}
+
+	if (test->x < 0)
+	{
+		return false;
+	}
+
+	if (test->y < 0)
+	{
+		return false;
+	}
+
+	return true;
 }
 
 Vector2f map_level::getNearestObjectPosition(Vector2f mousePos)
@@ -336,6 +336,14 @@ const mapFileHeader map_level::getMapHeader()
 	return mapHeader;
 }
 
+void map_level::setObject(filemapObject *object)
+{
+	Sprite temp;
+	temp.setPosition(object->x, object->y);
+	temp.setTexture(getTexture(object->type));
+	setObject(temp, object->type);
+}
+
 void map_level::setObject(Sprite sprite, int type)
 {
 	if (type >= TexNames::TILESTOTHEEND)
@@ -358,42 +366,9 @@ void map_level::setObject(Sprite sprite, int type)
 	}
 }
 
-unique_ptr<accessories> map_level::objectFactory(int type)
-{
-	unique_ptr<accessories> temp = nullptr;
-	switch (TexNames(type))
-	{
-	case CHICKEN:
-		temp = make_unique<accessories>(chicken());
-		break;
-	case BUSH:
-		temp = make_unique<accessories>(bush());
-		break;
-	case CAMPFIRE:
-		temp = make_unique<accessories>(campFire());
-		break;
-	case CHEST:
-		temp = make_unique<accessories>(chest());
-		break;
-	case COIN:
-		temp = make_unique<accessories>(coin());
-		break;
-	case BOX:
-		temp = make_unique<accessories>(box());
-		break;
-	case LADDER:
-		temp = make_unique<accessories>(ladder());
-		break;
-	case NEXTPLATE:
-		temp = make_unique<accessories>(plate());
-		break;
-	}
-	return temp;
-}
-
 void map_level::addObjectToVector(Sprite sprite, int type)
 {
-	unique_ptr<accessories> temp = objectFactory(type);
+	shared_ptr<accessories> temp = objectFactory(type);
 
 	if (temp == nullptr)
 	{
@@ -402,18 +377,51 @@ void map_level::addObjectToVector(Sprite sprite, int type)
 	else
 	{
 		temp->setPosition(sprite.getPosition());
-		
-		enemies *isEnemie = dynamic_cast<enemies *>(temp.get());
+
+		shared_ptr<enemies> isEnemie = dynamic_pointer_cast<enemies>(temp);
+
 		if (isEnemie)
 		{
-			unique_ptr <enemies> enemie = make_unique<enemies>(*isEnemie);
-			enemiesVector.push_back(std::move(enemie));
+			enemiesVector.push_back(isEnemie);
 		}
 		else
 		{
-			objectsVector.push_back(std::move(temp));
+			objectsVector.push_back(temp);
 		}
 	}
+}
+
+shared_ptr<accessories> map_level::objectFactory(int type)
+{
+	shared_ptr<accessories> temp = nullptr;
+	switch (TexNames(type))
+	{
+	case CHICKEN:
+		temp = make_shared<chicken>(chicken());
+		break;
+	case BUSH:
+		temp = make_shared<bush>(bush());
+		break;
+	case CAMPFIRE:
+		temp = make_shared<campFire>(campFire());
+		break;
+	case CHEST:
+		temp = make_shared<chest>(chest());
+		break;
+	case COIN:
+		temp = make_shared<coin>(coin());
+		break;
+	case BOX:
+		temp = make_shared<box>(box());
+		break;
+	case LADDER:
+		temp = make_shared<ladder>(ladder());
+		break;
+	case NEXTPLATE:
+		temp = make_shared<plate>(plate());
+		break;
+	}
+	return temp;
 }
 
 string map_level::makeFileName()

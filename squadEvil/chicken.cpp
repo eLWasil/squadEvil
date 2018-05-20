@@ -9,6 +9,7 @@ chicken::chicken()
 	allTex[2].loadFromFile("data/Graphics/Others/enemies/h_angryChickenTileset.png", IntRect(0, 0, 64, 46));
 	allTex[3].loadFromFile("data/Graphics/Others/enemies/h_angryChickenTileset.png", IntRect(0, 46, 64, 46));
 
+
 	sprite.setPosition(0, 0);
 	texture = allTex[0];
 	sprite.setTexture(texture);

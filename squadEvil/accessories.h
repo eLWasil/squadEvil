@@ -29,8 +29,6 @@ public:
 
 	//string getName();
 
-	virtual void setObjectTypeNumber(int k) { typeOfObjectByNr = k; };
-	virtual int getObjectTypeNumber() { return typeOfObjectByNr; };
 
 	operator Sprite() const { return sprite; }
 protected:

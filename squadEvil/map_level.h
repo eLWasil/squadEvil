@@ -15,6 +15,7 @@ struct filemapObject
 	int type;
 	float x, y;
 
+
 	filemapObject(int t, float px, float py) : type(t), x(px), y(py) {};
 };
 
@@ -75,14 +76,14 @@ private:
 	vector <Texture > textures;
 
 	vector <Sprite> tileSpritesVector;
-	vector <unique_ptr <accessories>> objectsVector;
-	vector <unique_ptr <enemies>> enemiesVector;
+	vector <shared_ptr <accessories>> objectsVector;
+	vector <shared_ptr<enemies>> enemiesVector;
 
 	vector <vector <int>> tilesTypeMap;
 	vector <filemapObject> objectsToFileSave;
 	bool isObjectCorrect(filemapObject *);
 
-	unique_ptr <accessories> objectFactory(int type);
+	shared_ptr <accessories> objectFactory(int type);
 	string makeFileName();
 
 	void setObject(filemapObject *);

@@ -238,6 +238,7 @@ void game::drawEnemies()
 			break;
 		}
 
+
 		if (isVisible(&enemieHolder->getSprite()))
 		{
 			window.draw(enemieHolder->getSprite());
