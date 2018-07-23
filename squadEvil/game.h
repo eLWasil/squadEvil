@@ -35,6 +35,8 @@ private:
 	void drawEnemies();
 	void drawSkills();
 
+	void skillIntersectEnemies(skills *skill);
+
 	void camera();
 	void camera2();
 	Vector2f cameraTarget;

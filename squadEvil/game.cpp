@@ -239,16 +239,17 @@ void game::drawEnemies()
 		}
 
 
-		if (isVisible(&enemieHolder->getSprite()))
+		if (isVisible(&enemieHolder->getSprite()) || enemieHolder->getAttackState())
 		{
 			window.draw(enemieHolder->getSprite());
-			enemieHolder->update();
-			enemieHolder->eventP(*p_1);
-		}
-		else if (enemieHolder->getAttackState())
-		{
-			enemieHolder->update();
-			enemieHolder->eventP(*p_1);
+			if (!enemieHolder->update())
+			{
+				enemieHolder->eventP(*p_1);
+			}
+			else
+			{
+				level->deleteEnemieAt(idx);
+			}
 		}
 
 	} while (++idx);
@@ -266,8 +267,35 @@ void game::drawSkills()
 		else
 		{
 			window.draw(skillsArray[i]->getSprite());
+			skillIntersectEnemies(skillsArray[i]);
 		}
 	}
+}
+
+void game::skillIntersectEnemies(skills * skill)
+{
+	int idx = 0;
+	enemies *enemieHolder;
+
+	do
+	{
+		enemieHolder = level->getEnemieAt(idx);
+		if (!enemieHolder)
+		{
+			break;
+		}
+
+
+		if (isVisible(&enemieHolder->getSprite()) || enemieHolder->getAttackState())
+		{
+			if (enemieHolder->getSprite().getGlobalBounds().intersects(skill->getSprite().getGlobalBounds()))
+			{
+				enemieHolder->hit(skill);
+			}
+		}
+
+	} while (++idx);
+
 }
 
 void game::camera2()

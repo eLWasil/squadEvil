@@ -41,15 +41,6 @@ Vector2f enemies::newDir(int rotAngle)
 int enemies::operator-=(int skillDmg)
 {
 	stats.HP -= skillDmg;
-	if (stats.HP <= 0)
-	{
-		stats.HP = 0;
-		isDead = true;
-	}
-	if (!targetActive)
-	{
-		targetActive = true;
-	}
 	hitTimer.restart();
 	return stats.HP;
 }
@@ -66,6 +57,7 @@ void enemies::hit(skills* skill)
 	{
 		targetActive = true;
 	}
+	skill->toRemove = true;
 }
 
 bool enemies::update()

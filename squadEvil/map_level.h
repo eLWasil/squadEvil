@@ -63,6 +63,7 @@ public:
 	Sprite* getTileAt(int idx);
 	accessories* getObjectAt(int idx);
 	enemies* getEnemieAt(int idx);
+	void deleteEnemieAt(int idx);
 
 	int getTileType(Vector2f pos);
 	const mapFileHeader getMapHeader();

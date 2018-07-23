@@ -316,16 +316,32 @@ enemies* map_level::getEnemieAt(int idx)
 	return nullptr;
 }
 
+void map_level::deleteEnemieAt(int idx)
+{
+	if (idx >= 0 && idx < enemiesVector.size())
+	{
+		enemiesVector.erase(enemiesVector.begin() + idx);
+	}
+}
+
 int map_level::getTileType(Vector2f pos)
 {
 	if (pos.x > 0)
 	{
 		pos.x /= TILESIZE;
 	}
+	else
+	{
+		pos.x = 0;
+	}
 
 	if (pos.y > 0)
 	{
 		pos.y /= TILESIZE;
+	}
+	else
+	{
+		pos.y = 0;
 	}
 
 	return tilesTypeMap[pos.x][pos.y];
@@ -487,7 +503,7 @@ void map_level::loadTextures()
 	//textures[TexNames::MENUBACKGROUND].loadFromFile("data/Graphics/ingameMenuBackground.png");
 	textures[TexNames::EMPTY].loadFromFile("data/Graphics/Others/empty.png");
 	
-	textures[TexNames::CHICKEN].loadFromFile("data/Graphics/Others/Enemies/angryChickenTileset.png", IntRect(0, 0, 64, 46));
+	textures[TexNames::CHICKEN].loadFromFile("data/Graphics/Others/enemies/angryChickenTileset.png", IntRect(0, 0, 64, 46));
 	textures[TexNames::FLOWER].loadFromFile("data/Graphics/Others/Enemies/flower.png");
 	textures[TexNames::TURTLE].loadFromFile("data/Graphics/Others/Enemies/turtle.png");
 
